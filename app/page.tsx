@@ -4,6 +4,21 @@ import { useEffect, useMemo, useState } from "react";
 
 type Category = "sight" | "food" | "transit" | "shopping" | "stay";
 
+type Backup = {
+  name: string;
+  detail: string;
+  url?: string;
+};
+
+type CalendarEvent = {
+  title: string;
+  start: string;
+  end: string;
+  timeZone: "Asia/Taipei" | "Asia/Tokyo";
+  details: string;
+  location?: string;
+};
+
 type Stop = {
   time: string;
   title: string;
@@ -16,6 +31,7 @@ type Stop = {
   note?: string;
   mapQuery?: string;
   official?: string;
+  backups?: Backup[];
 };
 
 type TripDay = {
@@ -27,7 +43,16 @@ type TripDay = {
   summary: string;
   ticket: string;
   color: string;
+  calendar: CalendarEvent;
   stops: Stop[];
+};
+
+type TodoItem = {
+  id: string;
+  when: string;
+  title: string;
+  detail: string;
+  calendar?: CalendarEvent;
 };
 
 const categories: { id: "all" | Category; label: string; icon: string }[] = [
@@ -45,17 +70,25 @@ const tripDays: TripDay[] = [
     date: "2/11",
     weekday: "四",
     city: "大阪",
-    title: "抵達大阪・新世界散步",
-    summary: "國定假日，首日留足通關與自助入住緩衝。",
-    ticket: "ICOCA＋南海 ¥970",
+    title: "抵達大阪・新世界壽司與採買",
+    summary: "國定假日，抵達時段保留彈性；晚餐與唐吉訶德集中在新世界。",
+    ticket: "ICOCA＋南海空港急行",
     color: "#d24a38",
+    calendar: {
+      title: "大阪 DAY 1｜抵達・新世界",
+      start: "20270211",
+      end: "20270212",
+      timeZone: "Asia/Tokyo",
+      details: "JX820 抵達後前往新今宮；新世界、大興壽司南店、MEGA 唐吉訶德新世界店。班機時間依電子機票。",
+      location: "Shinsekai, Osaka",
+    },
     stops: [
       {
         time: "依機票",
         title: "JX820 桃園起飛",
         icon: "✈️",
         category: "transit",
-        description: "桃園機場 T1 出發；精確起飛、抵達時間以電子機票為準。",
+        description: "桃園機場 T1 出發；精確起飛與抵達時間以電子機票為準。",
         route: "TPE T1 → KIX T1",
         official: "https://www.starlux-airlines.com/zh-TW/timetable",
       },
@@ -64,18 +97,18 @@ const tripDays: TripDay[] = [
         title: "抵達關西機場",
         icon: "🛬",
         category: "transit",
-        description: "通關與領行李保留 60–90 分鐘，不安排硬性預約。",
-        note: "2/11 為日本建國紀念日，預期較擁擠。",
+        description: "通關、領行李預留 60–90 分鐘；第一天不安排不可遲到的預約。",
+        note: "2/11 是日本建國紀念日，交通與餐廳增加 20–30 分鐘人潮緩衝。",
         mapQuery: "Kansai International Airport Terminal 1",
       },
       {
         time: "+90 分",
-        title: "南海空港急行",
+        title: "南海空港急行到新今宮",
         icon: "🚆",
         category: "transit",
-        description: "搭往難波方向的空港急行，新今宮下車；不用劃位。",
-        route: "關西空港 → 新今宮｜約 42–45 分",
-        fare: "¥970",
+        description: "搭往難波方向的空港急行，新今宮下車；一般車廂不用劃位。",
+        route: "關西空港 → 南海新今宮｜約 42–45 分",
+        fare: "現行 ¥970",
         ticket: "ICOCA",
         official: "https://www.nankai.co.jp/en_railway/access-timetable",
       },
@@ -84,9 +117,9 @@ const tripDays: TripDay[] = [
         title: "Apartment Hotel 11",
         icon: "🧳",
         category: "stay",
-        description: "先寄放行李；正式入住為 16:00。務必事前確認無人櫃檯的寄放方式。",
+        description: "正式入住為 16:00；若提前抵達，寄放方式必須先向住宿確認。",
         route: "南海新今宮站旁",
-        note: "要求高樓層、背向軌道房。",
+        note: "要求高樓層、背向軌道房；不可假設無人櫃檯一定能寄放。",
         mapQuery: "Apartment Hotel 11 Shinimamiya 3 Osaka",
       },
       {
@@ -94,18 +127,36 @@ const tripDays: TripDay[] = [
         title: "新世界・通天閣",
         icon: "🗼",
         category: "sight",
-        description: "從飯店步行前往新世界、通天閣外觀與ジャンジャン横丁。",
-        route: "飯店 → 徒步約 10 分",
+        description: "飯店放妥行李後逛新世界、通天閣外觀與ジャンジャン横丁。",
+        route: "住宿 → 步行約 8–10 分",
         mapQuery: "Tsutenkaku Osaka",
         official: "https://osaka-info.jp/en/spot/shinsekai/",
       },
       {
-        time: "18:30",
-        title: "串炸或回房料理",
-        icon: "🍳",
+        time: "17:45",
+        title: "大興寿司 南店",
+        icon: "🍣",
         category: "food",
-        description: "首晚保留彈性；可在附近採買早餐與食材，熟悉房內廚房。",
-        route: "新世界／新今宮周邊",
+        description: "正式店名為 DAIKOSUSHI MINAMI。不可預約、只收現金；目標 18:00 前入店。",
+        fare: "約 ¥3,000–4,000／人｜現金",
+        note: "若店家告知等候超過 25–30 分鐘，立即切換備案。2/11 假日營業請於 2027/1 複查。",
+        mapQuery: "大興寿司 南店 大阪",
+        official: "https://daikosushi.jp/access/daikosushi-minami/",
+        backups: [
+          { name: "大衆すし 謹賀 新世界", detail: "距離近、可網路預約，適合第一順位備案。", url: "https://tabelog.com/osaka/A2701/A270206/27136277/" },
+          { name: "六鮮 通天閣本店", detail: "座位較多、可預約並可刷卡。", url: "https://tabelog.com/osaka/A2701/A270206/27004322/" },
+        ],
+      },
+      {
+        time: "19:15",
+        title: "MEGA 唐吉訶德 新世界店",
+        icon: "🛍️",
+        category: "shopping",
+        description: "壽司店步行約 3–4 分鐘；補日用品、零食與第一晚需要的東西。",
+        route: "大興壽司南店 → 步行約 250 公尺",
+        ticket: "卡／ICOCA／多元支付",
+        mapQuery: "MEGA Don Quijote Shinsekai",
+        official: "https://www.donki.com/en/store/shop_detail.php?shop_id=356",
       },
     ],
   },
@@ -114,70 +165,89 @@ const tripDays: TripDay[] = [
     date: "2/12",
     weekday: "五",
     city: "大阪",
-    title: "拉麵榜首・北區甜點",
-    summary: "早排名店，午後用地鐵串聯梅田、中之島與甜點。",
-    ticket: "Enjoy Eco Card ¥820",
+    title: "梅田拉麵・友都八喜・甜點・燒肉",
+    summary: "整天留在梅田，全部集中在大阪站周邊，減少轉車與長距離步行。",
+    ticket: "ICOCA 單次刷｜往返現行約 ¥480",
     color: "#cf7d2d",
+    calendar: {
+      title: "大阪 DAY 2｜梅田吃喝購物",
+      start: "20270212",
+      end: "20270213",
+      timeZone: "Asia/Tokyo",
+      details: "鴨と葱梅田店 → 友都八喜梅田 → grenier梅田 → 17:30燒肉力丸梅田東通り店。",
+      location: "Umeda, Osaka",
+    },
     stops: [
       {
-        time: "09:15",
-        title: "前往中津",
+        time: "09:10",
+        title: "御堂筋線前往梅田",
         icon: "🚇",
         category: "transit",
-        description: "動物園前搭御堂筋線直達中津，出站後步行約 3 分鐘。",
-        route: "動物園前 M22 → 中津 M15",
-        ticket: "Enjoy Eco Card",
+        description: "由動物園前搭御堂筋線直達梅田，再經大阪站連通道到 Inogate Osaka。",
+        route: "動物園前 M22 → 梅田 M16｜約 12–14 分",
+        fare: "現行 ¥240",
+        ticket: "ICOCA",
       },
       {
-        time: "09:45",
-        title: "麦と麺助排隊",
+        time: "09:50",
+        title: "らぁ麺 鴨と葱 梅田店",
         icon: "🍜",
         category: "food",
-        description: "大阪拉麵榜現行約第 1 名；11:00 開門、不能訂位。",
-        fare: "約 ¥1,000–2,000｜現金",
-        note: "預留 60–90 分鐘候位。",
-        mapQuery: "麦と麺助 大阪 中津",
-        official: "https://tabelog.com/osaka/A2701/A270101/27104891/",
+        description: "10:00 開門，主打鴨拉麵與「飲める親子丼」；不可預約，09:50 到場。",
+        fare: "約 ¥1,000–2,000｜卡／交通 IC／QR",
+        note: "若到 10:40 仍無法入店，直接切換備案，避免壓縮購物時間。",
+        mapQuery: "らぁ麺 鴨と葱 梅田店",
+        official: "https://www.kamotonegi.com/shoprisuto/oosaka/",
+        backups: [
+          { name: "銀座 篝 LUCUA大阪店", detail: "拉麵百名店，11:00 開門，從大阪站內移動最方便。", url: "https://www.lucua.jp/shopguide/id804.html" },
+          { name: "なにわ麺次郎 然", detail: "阪神梅田 B2，拉麵百名店，11:00 開門。", url: "https://naniwamenjiro.com/store_02" },
+        ],
       },
       {
-        time: "12:15",
-        title: "梅田新城散步",
-        icon: "🌿",
-        category: "sight",
-        description: "拉麵候位結束後再開始；Grand Green Osaka、Grand Front 與大阪站周邊散步。",
-        route: "中津 → 徒步前往梅田",
-        mapQuery: "Grand Green Osaka",
+        time: "11:15",
+        title: "友都八喜相機多媒體 梅田店",
+        icon: "📷",
+        category: "shopping",
+        description: "相機、電器、玩具與生活用品集中採買；大阪站北側直接連通。",
+        route: "Inogate Osaka → 步行約 5–8 分",
+        mapQuery: "Yodobashi Camera Multimedia Umeda",
+        official: "https://global.yodobashi/stores/yodobashi_camera/umeda/",
       },
       {
-        time: "15:10",
-        title: "Circo D’oro",
-        icon: "🍨",
+        time: "15:45",
+        title: "grenier 梅田店",
+        icon: "🥐",
         category: "food",
-        description: "大阪甜點榜現行最高分之一，冬天也值得吃的義式冰淇淋。",
-        route: "東梅田 → 谷町六丁目",
-        fare: "約 ¥1,000｜只收現金",
-        mapQuery: "Gelateria Circo D'oro Osaka",
-        official: "https://tabelog.com/osaka/A2701/A270204/27009531/",
+        description: "本日唯一甜點，建議現點炙燒千層或當日新鮮品項；店型偏外帶。",
+        fare: "約 ¥1,000 內｜卡／交通 IC",
+        note: "預留 15–20 分鐘排隊。若招牌售完就改買當日品項或跳過，不另排第二間甜點店。",
+        mapQuery: "grenier Umeda Osaka",
+        official: "https://grenier.shopselect.net/",
       },
       {
-        time: "16:20",
-        title: "ACIDRACINES",
-        icon: "🍰",
+        time: "17:30",
+        title: "焼肉力丸 梅田東通り店",
+        icon: "🥩",
         category: "food",
-        description: "大阪高評法式蛋糕店，純外帶；排在最後買，避免帶著蛋糕逛數小時。",
-        route: "谷町六丁目 → 天滿橋，步行 6–7 分",
-        fare: "約 ¥1,000–2,000｜可刷卡",
-        note: "招牌品項可能售完，以現場品項為準。",
-        mapQuery: "ACIDRACINES Osaka",
-        official: "https://www.acidracines.com/",
+        description: "指定梅田東通り店，行程最順；建議至少提前一個月先查並預約 17:30。",
+        fare: "吃到飽約 ¥3,700–5,800／人｜多元支付",
+        note: "力丸是依指定需求安排，不是 Tabelog 高分主選；務必確認分店名稱。",
+        mapQuery: "焼肉力丸 梅田東通り店",
+        official: "https://booking.ebica.jp/webrsv/vacant/e021003801/30813",
+        backups: [
+          { name: "焼肉力丸 お初天神店本館", detail: "同集團、座位較多，可預約。", url: "https://tabelog.com/osaka/A2701/A270101/27123578/" },
+          { name: "焼肉力丸 堂山店", detail: "同集團第二備案，從東通商店街移動方便。", url: "https://tabelog.com/osaka/A2701/A270101/27112835/" },
+        ],
       },
       {
-        time: "17:10",
-        title: "回住宿料理",
-        icon: "🍳",
-        category: "food",
-        description: "甜點較多的一天，晚餐用超市食材簡單料理即可。",
-        route: "天滿橋 → 天王寺轉御堂筋線 → 動物園前",
+        time: "20:00",
+        title: "返回新今宮",
+        icon: "🌙",
+        category: "transit",
+        description: "梅田搭御堂筋線直達動物園前，再步行回住宿。",
+        route: "梅田 M16 → 動物園前 M22",
+        fare: "現行 ¥240",
+        ticket: "ICOCA",
       },
     ],
   },
@@ -186,115 +256,117 @@ const tripDays: TripDay[] = [
     date: "2/13",
     weekday: "六",
     city: "大阪",
-    title: "木津朝市・黑毛和牛・熟成燒肉",
-    summary: "把黑門改成木津市場；肉買完立刻搭計程車送回冰箱，不提著逛街。",
-    ticket: "Enjoy Eco Card ¥620＋短程計程車",
+    title: "木津早餐・難波拉麵・道頓堀夜景",
+    summary: "早餐、可麗露、拉麵與夜間 Glico 串成不折返的一天。",
+    ticket: "ICOCA＋短程計程車",
     color: "#b24845",
+    calendar: {
+      title: "大阪 DAY 3｜木津市場・難波・道頓堀",
+      start: "20270213",
+      end: "20270214",
+      timeZone: "Asia/Tokyo",
+      details: "木津市場早餐 → 難波八阪神社 → CANELE du JAPON → 難波拉麵 → 晚上Glico → 法善寺道頓堀晚餐。",
+      location: "Namba, Osaka",
+    },
     stops: [
       {
-        time: "08:10",
-        title: "計程車到難波八阪",
+        time: "07:35",
+        title: "短程計程車到木津市場",
         icon: "🚕",
         category: "transit",
-        description: "從住宿直接叫車，省掉轉車與不必要的早晨步行。",
-        route: "住宿 → 難波八阪神社｜約 5–10 分",
-        fare: "概估 ¥700–1,000／車｜依路況跳表",
-        note: "若想省錢，才改搭 Metro 到大國町再步行約 8 分。",
+        description: "住宿直接叫車，避免一早搬動轉車；車程約 5–8 分鐘。",
+        route: "住宿 → 木津市場",
+        fare: "依跳表／每車分攤",
       },
       {
-        time: "08:25",
+        time: "07:45",
+        title: "木津 魚市食堂早餐",
+        icon: "🐟",
+        category: "food",
+        description: "海鮮丼主選，熱門且不可預約；只點適量，保留中午拉麵食量。",
+        fare: "現金為主",
+        note: "若 07:45 已排很長，立刻改下列店家；市場 2027 休市曆於 2027/1 複查。",
+        mapQuery: "木津 魚市食堂 大阪",
+        official: "https://kizu-ichiba.com/restaurant/",
+        backups: [
+          { name: "川上商店", detail: "炭火鰻魚，可電話詢問訂位，想避開海鮮丼就選它。", url: "https://tabelog.com/osaka/A2701/A270206/27016977/" },
+          { name: "まるよし", detail: "壽司、海鮮丼與鰻魚，06:00 左右起營業。", url: "https://tabelog.com/osaka/A2701/A270206/27053505/" },
+          { name: "かなえ寿司", detail: "可預約，是最能避免現場吃不到的保險。", url: "https://tabelog.com/osaka/A2701/A270206/27020286/" },
+        ],
+      },
+      {
+        time: "09:15",
         title: "難波八阪神社",
         icon: "🦁",
         category: "sight",
-        description: "先拍巨型獅子殿，早上人潮相對少。",
+        description: "早餐後搭短程計程車，拍巨型獅子殿；停留約 25 分鐘。",
+        route: "木津市場 → 計程車約 3–5 分",
         mapQuery: "Namba Yasaka Jinja",
       },
       {
-        time: "08:55",
-        title: "前往木津市場",
-        icon: "🚕",
-        category: "transit",
-        description: "不再走原規劃的 20 分鐘；直接搭短程計程車。想走路時約 10 分鐘。",
-        route: "難波八阪神社 → 木津市場｜車程約 3–5 分",
-        fare: "概估 ¥600–800／車｜依路況跳表",
+        time: "10:00",
+        title: "CANELE du JAPON 桜川店",
+        icon: "🧁",
+        category: "food",
+        description: "桜川店 10:00 開，比長堀橋店早一小時，買完再去難波吃拉麵。",
+        route: "難波八阪神社 → 短程計程車約 5–8 分",
+        note: "外帶為主，買少量即可。",
+        mapQuery: "CANELE du JAPON Sakuragawa",
+        official: "https://caneledujapon.stores.jp/about",
+        backups: [
+          { name: "CANELE du JAPON 長堀橋店", detail: "同品牌備案，11:00 開門；若桜川臨休，午餐後再去。", url: "https://caneledujapon.stores.jp/about" },
+        ],
       },
       {
-        time: "09:00",
-        title: "木津市場・木津の朝市",
-        icon: "🐟",
-        category: "shopping",
-        description: "市場官方建議 08:30–10:30 採買；2/13 是第二個週六，依現行規則很可能有朝市活動。",
-        note: "2027 市場日曆尚未公布，出發前再確認；多數攤位以現金最穩。",
-        mapQuery: "Osaka Kizu Wholesale Market",
-        official: "https://kizu-ichiba.com/introduction/",
+        time: "11:10",
+        title: "麺屋 丈六 なんば店排隊",
+        icon: "🍜",
+        category: "food",
+        description: "拉麵百名店，11:30 開門、不可預約；主吃大阪高井田系醬油拉麵。",
+        fare: "約 ¥1,000–2,000｜現金",
+        note: "若估計等候超過 30–40 分鐘，直接換備案。",
+        mapQuery: "麺屋 丈六 なんば店",
+        official: "https://tabelog.com/osaka/A2701/A270202/27084754/",
+        backups: [
+          { name: "なにわ 麺次郎", detail: "拉麵百名店，位於近鐵大阪難波站閘內。", url: "https://tabelog.com/osaka/A2701/A270202/27112089/" },
+          { name: "NEXT□", detail: "牡蠣系拉麵、營業時間長且無現金支付。", url: "https://tabelog.com/osaka/A2701/A270202/27124383/" },
+          { name: "だしと小麦の可能性", detail: "近鐵日本橋附近的潮／鹽系拉麵。", url: "https://tabelog.com/osaka/A2701/A270202/27125763/" },
+        ],
       },
       {
-        time: "09:40",
-        title: "千惣・喜久安買黑毛和牛",
-        icon: "🥩",
-        category: "shopping",
-        description: "西門外的黑毛和牛專門店，可依料理方式現切；選油脂不要太重的赤身燒肉片。",
-        route: "木津市場西門旁",
-        note: "確認標示「黒毛和牛」、消費期限至少到 2/14，並索取保冷劑。",
-        mapQuery: "千惣 喜久安 木津市場 大阪",
-        official: "https://ojg.co.jp/",
-      },
-      {
-        time: "10:10",
-        title: "計程車送肉回住宿",
-        icon: "❄️",
-        category: "transit",
-        description: "肉買完直接回住宿冷藏，不帶著和牛繼續逛。放妥後休息再出門。",
-        route: "木津市場 → 住宿｜約 5–8 分",
-        fare: "概估 ¥700–1,000／車｜依路況跳表",
-      },
-      {
-        time: "11:30",
-        title: "法善寺・道頓堀",
-        icon: "📸",
-        category: "sight",
-        description: "從動物園前搭御堂筋線到難波，再走法善寺橫丁、Glico 看板與戎橋。",
-        route: "動物園前 M22 → 難波 M20",
-        ticket: "週末 Enjoy Eco Card",
-        mapQuery: "Dotonbori Glico Sign",
-        official: "https://osaka-info.jp/en/spot/dotonbori/",
-      },
-      {
-        time: "13:30",
-        title: "心齋橋・美國村",
+        time: "13:00",
+        title: "難波・心齋橋自由逛",
         icon: "🛍️",
         category: "shopping",
-        description: "心齋橋筋商店街一路走到美國村，途中安排咖啡休息。",
-        route: "道頓堀 → 徒步",
+        description: "法善寺外圍、心齋橋筋與美國村自由選；下午刻意留休息時間。",
+        route: "以地鐵或短程計程車取代不必要長走",
         mapQuery: "Shinsaibashi-suji Shopping Street",
       },
       {
-        time: "16:30",
-        title: "搭車前往長居",
-        icon: "🚇",
-        category: "transit",
-        description: "從難波搭御堂筋線直達長居，提早 15 分鐘抵達。",
-        route: "難波 M20 → 長居 M26",
-        ticket: "週末 Enjoy Eco Card",
+        time: "18:15",
+        title: "Glico Sign Dotonbori 夜景",
+        icon: "🌃",
+        category: "sight",
+        description: "冬季日落後再拍 Glico 看板、戎橋與道頓堀河岸。",
+        note: "依當日日落微調；官方現行為日落約 30 分鐘後亮燈。",
+        mapQuery: "Dotonbori Glico Sign",
+        official: "https://www.glico.com/jp/newscenter/pressrelease/8077/",
       },
       {
-        time: "17:30",
-        title: "又三郎熟成燒肉",
-        icon: "🥩",
+        time: "18:45",
+        title: "福太郎 本店",
+        icon: "🥞",
         category: "food",
-        description: "主方案選熟成肉與燒肉兼具的套餐；不是只吃牛排的套餐。",
-        fare: "約 ¥10,000–15,000｜可刷卡",
-        note: "二月訂位開放後立即預約。",
-        mapQuery: "又三郎 焼肉 長居 大阪",
-        official: "https://www.tablecheck.com/ja/matasaburo/reserve/message",
-      },
-      {
-        time: "20:00",
-        title: "返回新今宮",
-        icon: "🌙",
-        category: "transit",
-        description: "長居搭御堂筋線直達動物園前，步行回飯店。",
-        route: "長居 M26 → 動物園前 M22",
+        description: "晚餐不吃燒肉，主選大阪燒百名店；由 Glico／法善寺步行約 8–10 分。",
+        fare: "卡／ICOCA／PayPay",
+        note: "不可預約，現場排太久就改味乃家或已先預約的はつせ。",
+        mapQuery: "福太郎 本店 大阪",
+        official: "https://2951.jp/access.html",
+        backups: [
+          { name: "味乃家 本店", detail: "離 Glico 更近；可查 FastPass，但不是保證座位。", url: "https://ajinoya-okonomiyaki.com/top/company/main-shop/" },
+          { name: "千日前はつせ", detail: "可真正預約座位、120 席，是週六晚最穩的保底。", url: "https://hatsuse.owst.jp/" },
+          { name: "道頓堀 今井本店", detail: "不想再排大阪燒時，改吃高評大阪烏龍麵。", url: "https://tabelog.com/osaka/A2701/A270202/27001289/" },
+        ],
       },
     ],
   },
@@ -303,14 +375,22 @@ const tripDays: TripDay[] = [
     date: "2/14",
     weekday: "日",
     city: "大阪",
-    title: "大阪城・豬排・黑毛和牛料理",
-    summary: "周遊卡日把移動改成地鐵直達；傍晚提早回房料理前一天買的和牛。",
-    ticket: "Osaka Amazing Pass ¥3,500",
+    title: "大阪城・高評豬排・梅田空中庭園",
+    summary: "保留大阪城與豬排名店，下午用大阪周遊卡進空中庭園。",
+    ticket: "Osaka Amazing Pass｜現行 ¥3,500",
     color: "#315a7d",
+    calendar: {
+      title: "大阪 DAY 4｜大阪城・豬排・梅田夜景",
+      start: "20270214",
+      end: "20270215",
+      timeZone: "Asia/Tokyo",
+      details: "大阪城 → 11:30とんかつふじ井 → 15:00前入場梅田藍天大廈 → 梅田自由活動。",
+      location: "Osaka Castle, Osaka",
+    },
     stops: [
       {
         time: "08:00",
-        title: "前往大阪城",
+        title: "地鐵前往大阪城",
         icon: "🚇",
         category: "transit",
         description: "動物園前搭御堂筋線至本町，轉中央線至谷町四丁目。",
@@ -322,17 +402,17 @@ const tripDays: TripDay[] = [
         title: "大阪城天守閣",
         icon: "🏯",
         category: "sight",
-        description: "開門即入場，參觀天守閣與豐臣石垣館。",
-        fare: "原價 ¥1,200｜周遊卡含",
+        description: "開門即入場，參觀天守閣與周邊城郭。",
+        fare: "現行原價 ¥1,200｜周遊卡含",
         mapQuery: "Osaka Castle Museum",
         official: "https://www.osaka-info.jp/en/spot/osaka-castle-main-keep/",
       },
       {
         time: "10:20",
-        title: "前往千林",
+        title: "谷町線直達千林大宮",
         icon: "🚇",
         category: "transit",
-        description: "不走到天滿橋；回谷町四丁目站，搭谷町線直達千林大宮。",
+        description: "回谷町四丁目站，搭谷町線直達千林大宮。",
         route: "谷町四丁目 T23 → 千林大宮 T14",
         ticket: "大阪周遊卡",
       },
@@ -341,15 +421,19 @@ const tripDays: TripDay[] = [
         title: "とんかつ ふじ井",
         icon: "🍱",
         category: "food",
-        description: "現行約 4.14 分的頂級豬排；完整預約制，指定搶 11:30。",
+        description: "高評豬排主選，依現行規則每月 10 日 22:00 JST 開放次月座位。",
         fare: "約 ¥3,000–5,000｜卡／交通 IC",
-        note: "若搶不到，改訂同區的 とんかつ中村。",
+        note: "目標搶 11:30，最晚 12:15；遲到超過 10 分鐘可能取消。",
         mapQuery: "とんかつ ふじ井 千林",
-        official: "https://tabelog.com/osaka/A2701/A270304/27131908/",
+        official: "https://www.tablecheck.com/ja/shops/tonkatsu-fujii/reserve",
+        backups: [
+          { name: "とんかつ中村", detail: "同在千林、可預約，是最順路的高評備案。", url: "https://tabelog.com/osaka/A2701/A270304/27092639/" },
+          { name: "Tonkatsu New Babe Namba", detail: "若想吃原先指定的 New Babe，可改訂難波店並重排午前動線。", url: "https://www.hotpepper.jp/strJ004090515/yoyaku/" },
+        ],
       },
       {
         time: "12:40",
-        title: "千林前往梅田",
+        title: "谷町線前往東梅田",
         icon: "🚇",
         category: "transit",
         description: "千林大宮搭谷町線直達東梅田，不必轉車。",
@@ -358,39 +442,31 @@ const tripDays: TripDay[] = [
       },
       {
         time: "14:00",
-        title: "梅田藍天大廈",
+        title: "梅田藍天大廈・空中庭園",
         icon: "🌆",
         category: "sight",
-        description: "空中庭園展望台；周遊卡免費入場只到 15:00。",
-        fare: "原價 ¥2,000｜周遊卡含",
-        note: "最晚 14:45 抵達入口。",
+        description: "周遊卡免費規則是 15:00 前完成入場，不是只到大樓。",
+        fare: "現行原價 ¥2,000｜周遊卡含",
+        note: "最晚 14:40 抵入口；若豬排只搶到晚時段，改上午先上展望台。",
         mapQuery: "Umeda Sky Building",
         official: "https://osaka-amazing-pass.com/en/service_free.html",
       },
       {
         time: "15:30",
-        title: "梅田自由活動",
-        icon: "☕",
+        title: "Grand Green・梅田自由活動",
+        icon: "🌿",
         category: "shopping",
-        description: "Grand Green、百貨與地下街；預留休息時間。",
+        description: "百貨、Grand Green 與地下街自由選，晚餐依當下食量就近決定。",
         mapQuery: "Grand Green Osaka",
       },
       {
-        time: "17:00",
-        title: "回住宿準備晚餐",
-        icon: "🚇",
+        time: "19:00",
+        title: "返回新今宮",
+        icon: "🌙",
         category: "transit",
-        description: "從梅田搭御堂筋線直達動物園前，預留料理與整理廚房時間。",
+        description: "梅田搭御堂筋線直達動物園前，再步行回住宿。",
         route: "梅田 M16 → 動物園前 M22",
         ticket: "大阪周遊卡",
-      },
-      {
-        time: "18:00",
-        title: "自己料理黑毛和牛",
-        icon: "🍳",
-        category: "food",
-        description: "料理前一天在木津市場買的黑毛和牛；先煎少量測試油煙與熟度，再分批下鍋。",
-        note: "入住前先確認房內可煎肉、抽油煙設備與鍋具；生熟用具分開。",
       },
     ],
   },
@@ -399,106 +475,133 @@ const tripDays: TripDay[] = [
     date: "2/15",
     weekday: "一",
     city: "京都",
-    title: "伏見稻荷・清水寺・日本製茶筅",
-    summary: "京都縮為一天，只留首訪核心；兩段短程計程車換體力，不塞嵐山、金閣寺與宇治。",
+    title: "清水寺・兩間指定飲品店・豬一・茶筅",
+    summary: "由清水寺一路下坡，再搭計程車銜接豬一與茶筅店。",
     ticket: "ICOCA＋短程計程車",
     color: "#57775c",
+    calendar: {
+      title: "京都 DAY 5｜清水寺・豬一・抹茶・茶筅",
+      start: "20270215",
+      end: "20270216",
+      timeZone: "Asia/Tokyo",
+      details: "清水寺 → here Kyoto Kiyomizu → 二三年坂 → 八十八良葉舎清水 → 麺屋猪一當日取號 → 丸久小山園買日本製茶筅 → 錦市場。",
+      location: "Kiyomizu-dera, Kyoto",
+    },
     stops: [
       {
         time: "06:40",
-        title: "JR 前往伏見稻荷",
+        title: "JR 前往京都",
         icon: "🚆",
         category: "transit",
-        description: "新今宮經大阪、京都，轉 JR 奈良線普通車至稻荷。",
-        route: "新今宮 → 大阪 → 京都 → 稻荷",
+        description: "新今宮搭環狀線至大阪，轉 JR 京都線新快速到京都。",
+        route: "新今宮 → 大阪 → 京都｜現行約 50–60 分",
+        fare: "現行約 ¥960／人",
         ticket: "ICOCA／一般車票",
       },
       {
         time: "07:50",
-        title: "伏見稻荷大社",
-        icon: "⛩️",
-        category: "sight",
-        description: "本殿、千本鳥居與奧社來回；不攻山頂，約 80–90 分鐘。",
-        mapQuery: "Fushimi Inari Taisha",
-        official: "https://inari.jp/",
-      },
-      {
-        time: "09:25",
-        title: "計程車至清水寺東山區",
+        title: "京都站搭計程車到清水寺",
         icon: "🚕",
         category: "transit",
-        description: "從伏見稻荷直接搭車，避開京阪轉車與清水五條約 25 分鐘上坡。",
-        route: "伏見稻荷 → 清水坂／茶碗坂可下車處｜約 15–20 分",
-        fare: "概估 ¥2,000–3,000／車｜依路況跳表",
-        note: "車輛不能開到本堂，最後仍有一段坡道；請司機停在合法且最靠近的下車點。",
-        official: "https://www.kiyomizudera.or.jp/access/index.html",
+        description: "直接到五條坂／茶碗坂合法下車處，省掉公車擁擠與轉乘。",
+        route: "京都站 → 清水寺周邊｜約 15–25 分",
+        fare: "現行估約 ¥2,400／車｜依路況跳表",
+        note: "車不能到本堂，最後仍有約 10 分鐘上坡。",
       },
       {
-        time: "10:00",
+        time: "08:15",
         title: "清水寺",
         icon: "🏯",
         category: "sight",
-        description: "由清水舞台往地主神社周邊、音羽瀑布參觀；保留坡道慢走時間。",
-        fare: "¥500",
+        description: "早上先看清水舞台與音羽瀑布；09:10 前離開，保住後面兩間指定店。",
+        fare: "現行成人 ¥500",
         mapQuery: "Kiyomizu-dera Kyoto",
         official: "https://www.kiyomizudera.or.jp/",
       },
       {
-        time: "11:30",
-        title: "三年坂・二年坂・祇園",
+        time: "09:15",
+        title: "here Kyoto Kiyomizu",
+        icon: "☕",
+        category: "food",
+        description: "清水寺旁咖啡站，建議咖啡搭清水限定抹茶歐姆蕾或可麗露。",
+        fare: "約 ¥1,000–2,000｜卡／電子錢／QR",
+        note: "不可預約、現行 08:30–18:00、不定休；停留控制在 15 分鐘。",
+        mapQuery: "here Kyoto Kiyomizu",
+        official: "https://coffeehere.world/access/",
+      },
+      {
+        time: "09:30",
+        title: "三年坂・二年坂下坡散策",
         icon: "🏮",
         category: "sight",
-        description: "沿三年坂、二年坂、八坂塔往祇園方向下坡；這段保留給值得走的街景。",
-        route: "清水寺 → 八坂塔 → 高台寺外圍 → 祇園",
-        mapQuery: "Hokan-ji Temple Yasaka Pagoda",
+        description: "從 here 經三年坂、二年坂往高台寺方向一路下坡，不走回頭路。",
+        route: "here → 八坂塔 → 二年坂 → 高台寺南門通",
+        mapQuery: "Sannenzaka Kyoto",
       },
       {
-        time: "12:20",
-        title: "祇園午餐・坐下休息",
-        icon: "🍚",
+        time: "10:00",
+        title: "八十八良葉舎 清水",
+        icon: "🍵",
         category: "food",
-        description: "安排 60 分鐘正式午餐，不邊走邊吃；避開排隊名店，保住下午取茶筅時間。",
-        route: "祇園／河原町周邊",
+        description: "指定抹茶站，建議抹茶拿鐵「壱」或清水店限定茶團子，小份外帶。",
+        fare: "卡／電子錢／QR",
+        note: "不可預約且店面很小；公開時間有差異，先以 10:00 開門保守安排。10:10 必須離開。",
+        mapQuery: "八十八良葉舎 清水",
+        official: "https://www.8108kyoto.com/",
       },
       {
-        time: "13:25",
-        title: "短程計程車到西洞院",
+        time: "10:10",
+        title: "計程車前往麺屋 猪一",
         icon: "🚕",
         category: "transit",
-        description: "把祇園到烏丸御池的非景觀路段改搭車，午後留體力。",
-        route: "祇園 → 丸久小山園西洞院店｜約 10–15 分",
-        fare: "概估 ¥1,200–1,800／車｜依路況跳表",
+        description: "從東山安井附近叫車，目標 10:25 抵達；不要步行 20 分鐘。",
+        route: "八十八良葉舎 → 麺屋猪一｜約 10–15 分",
+        fare: "依跳表／每車分攤",
       },
       {
-        time: "14:00",
-        title: "丸久小山園・元庵",
+        time: "10:30",
+        title: "麺屋 猪一・當日取號",
+        icon: "🍜",
+        category: "food",
+        description: "10:30 起發午餐整理券，不能提前訂位；依券面時間返回並完成午餐。",
+        fare: "約 ¥1,000–2,000",
+        note: "全員一起取號。here 或八十八排隊時，以豬一整理券優先。",
+        mapQuery: "麺屋 猪一 京都",
+        official: "https://menyainoichi.net/news/663335b9c7a87201ab8228cf",
+        backups: [
+          { name: "麺処 虵の目屋", detail: "河原町站旁、拉麵百名店，最容易原地救援。", url: "https://tabelog.com/kyoto/A2601/A260201/26035164/" },
+          { name: "麺屋 猪一 離れ", detail: "同集團，但同樣需要 10:30 當日整理券。", url: "https://menyainoichi.net/about" },
+          { name: "和醸良麺 すがり", detail: "四條／烏丸附近高評備案，適合銜接丸久小山園。", url: "https://tabelog.com/kyoto/A2601/A260201/26006820/" },
+        ],
+      },
+      {
+        time: "13:30",
+        title: "丸久小山園 西洞院店・元庵",
         icon: "🍵",
         category: "shopping",
-        description: "若事前保留成功，先取日本製茶筅，再於茶房喝抹茶與上生菓子。",
-        fare: "茶筅約 ¥5,830",
-        note: "指定：久保駒吉・数穂・上・日本製。",
+        description: "先領事前保留的日本製茶筅；有位再喝傳統抹茶與上生菓子。",
+        fare: "茶筅現行約 ¥5,830",
+        note: "指定：久保駒吉・数穂・上・日本製。茶房不可預約，茶筅庫存須先電話確認。",
         mapQuery: "丸久小山園 西洞院店 元庵",
         official: "https://www.marukyu-koyamaen.co.jp/motoan.html",
       },
       {
-        time: "15:25",
-        title: "錦市場",
+        time: "15:15",
+        title: "錦市場・四條河原町",
         icon: "🛍️",
         category: "shopping",
-        description: "短程搭地下鐵或計程車前往；多數店約 17:00 前收攤，採買茶點與乾貨。",
-        route: "烏丸御池 → 四條／錦市場",
-        ticket: "ICOCA",
+        description: "採買茶點與乾貨；多數店約 17:00 前收，累了可直接刪除。",
+        route: "丸久小山園 → 短程計程車或地下鐵",
         mapQuery: "Nishiki Market Kyoto",
       },
       {
         time: "17:00",
-        title: "返回大阪",
+        title: "阪急返回大阪",
         icon: "🌙",
         category: "transit",
-        description: "從烏丸搭阪急到大阪梅田，再轉 JR 回新今宮；不繞京都站。",
-        route: "烏丸 → 大阪梅田 → JR 大阪 → 新今宮",
+        description: "烏丸／京都河原町搭阪急至大阪梅田，再轉 JR 回新今宮。",
+        route: "烏丸／京都河原町 → 大阪梅田 → JR大阪 → 新今宮",
         ticket: "ICOCA",
-        note: "本日刪除嵐山、金閣寺與宇治，避免一日塞成兩日的疲勞量。",
       },
     ],
   },
@@ -507,55 +610,98 @@ const tripDays: TripDay[] = [
     date: "2/16",
     weekday: "二",
     city: "大阪",
-    title: "海遊館・天保山・收行李",
-    summary: "京都後安排低強度大阪港日；不喜歡水族館可整天改成休息與最後採買。",
-    ticket: "ICOCA 約 ¥740 往返",
+    title: "天王寺・阿倍野逛街・Harukas 300",
+    summary: "景點全在天王寺／阿倍野，核心步行多在 2–10 分鐘內。",
+    ticket: "ICOCA 單次刷",
     color: "#397087",
+    calendar: {
+      title: "大阪 DAY 6｜天王寺・阿倍野・Harukas 300",
+      start: "20270216",
+      end: "20270217",
+      timeZone: "Asia/Tokyo",
+      details: "大阪市立美術館 → 慶澤園／天芝 → Q’s Mall、近鐵百貨、MIO → 16:30 Harukas 300。",
+      location: "Abeno Harukas, Osaka",
+    },
     stops: [
       {
-        time: "10:00",
-        title: "前往大阪港",
+        time: "09:20",
+        title: "JR 前往天王寺",
         icon: "🚆",
         category: "transit",
-        description: "睡飽再出門；JR 至弁天町，站內轉中央線到大阪港。",
-        route: "新今宮 → 弁天町 → 大阪港｜出站步行約 5 分",
-        fare: "往返概估約 ¥740／人",
+        description: "今宮／新今宮搭 JR 到天王寺，之後整天留在同一區。",
+        route: "JR 今宮／新今宮 → 天王寺",
         ticket: "ICOCA",
       },
       {
-        time: "11:00",
-        title: "大阪海遊館",
-        icon: "🐋",
+        time: "09:30",
+        title: "大阪市立美術館",
+        icon: "🖼️",
         category: "sight",
-        description: "指定時段入場，官方常見參觀時間約 2 小時；室內行程不受冬季天氣影響。",
-        fare: "現行成人動態票價約 ¥2,700–3,500",
-        note: "2027 時段未公布，出發前 4–6 週再買電子票。",
-        mapQuery: "Osaka Aquarium Kaiyukan",
-        official: "https://www.kaiyukan.com/info/hours/",
+        description: "參觀 2027/2/6–4/4 的圓山應舉特展；2/16 週二開館。",
+        note: "不愛美術可整段改成天王寺動物園，不要兩個都塞。",
+        mapQuery: "Osaka City Museum of Fine Arts",
+        official: "https://www.osaka-art-museum.jp/special_exhibition/10344",
       },
       {
-        time: "13:15",
-        title: "天保山午餐・休息",
+        time: "11:15",
+        title: "慶澤園",
+        icon: "🌿",
+        category: "sight",
+        description: "美術館旁的日式庭園，安靜停留約 35 分鐘；下雨或累了可刪。",
+        fare: "現行成人 ¥300",
+        mapQuery: "Keitakuen Garden Osaka",
+        official: "https://www.keitakuen-garden.jp/info",
+      },
+      {
+        time: "12:00",
+        title: "Tenshiba 午餐",
+        icon: "🍽️",
+        category: "food",
+        description: "主選 MAKIBI PLACE，讓這天午餐保持彈性、不再追排隊名店。",
+        mapQuery: "MAKIBI PLACE Tenshiba",
+        official: "https://tennoji-park.jp/shop/food",
+        backups: [
+          { name: "KNEADERS", detail: "同在 Tenshiba，營業時段長，適合現場候位。", url: "https://tennoji-park.jp/shop/food" },
+          { name: "阿倍野 Q’s Mall 餐廳街", detail: "雨天或兩店客滿時，直接進商場選餐。", url: "https://www.qs-mall.jp/abeno/" },
+        ],
+      },
+      {
+        time: "13:00",
+        title: "阿倍野 Q’s Mall・近鐵百貨",
+        icon: "🛍️",
+        category: "shopping",
+        description: "服飾、藥妝、生活雜貨與 Harukas 近鐵百貨地下食品街集中採買。",
+        route: "Tenshiba → 步行約 8–10 分",
+        mapQuery: "Abeno Q's Mall",
+        official: "https://www.qs-mall.jp/abeno/access",
+      },
+      {
+        time: "15:30",
+        title: "天王寺 MIO・休息",
+        icon: "🛍️",
+        category: "shopping",
+        description: "與 JR 天王寺站相連；逛街或找咖啡休息，準備傍晚上展望台。",
+        mapQuery: "Tennoji MIO",
+        official: "https://www.tennoji-mio.co.jp/access",
+      },
+      {
+        time: "16:30",
+        title: "Harukas 300 展望台",
+        icon: "🌇",
+        category: "sight",
+        description: "安排白天轉夜景的時段；16 樓入口掃 QR，入場後不可重複進出。",
+        fare: "現行網路預購 ¥1,980／當日 ¥2,200",
+        note: "2027 票價與日落時間出發前複查；建議提前購票。",
+        mapQuery: "Harukas 300 Observatory",
+        official: "https://www.abenoharukas-300.jp/observatory/information.html",
+      },
+      {
+        time: "18:15",
+        title: "阿倍野晚餐・最後採買",
         icon: "🍚",
         category: "food",
-        description: "在 Marketplace 坐下吃午餐；不安排市場連吃，留時間休息。",
-        mapQuery: "Tempozan Marketplace Osaka",
-      },
-      {
-        time: "14:30",
-        title: "天保山大觀覽車（可刪）",
-        icon: "🎡",
-        category: "sight",
-        description: "體力足夠才搭，約 15 分鐘；累了就直接回住宿。",
-        mapQuery: "Tempozan Ferris Wheel",
-      },
-      {
-        time: "16:00",
-        title: "回住宿休息・打包",
-        icon: "🧳",
-        category: "stay",
-        description: "最後一晚不再塞遠點；整理行李、洗衣，晚餐再到天王寺或超市簡單採買。",
-        route: "大阪港 → 弁天町 → 新今宮",
+        description: "依當天食量在 Harukas、MIO 或 Q’s Mall 選餐，再搭一站 JR 回住宿打包。",
+        route: "天王寺 → 今宮／新今宮",
         ticket: "ICOCA",
       },
     ],
@@ -566,9 +712,17 @@ const tripDays: TripDay[] = [
     weekday: "三",
     city: "返程",
     title: "關西機場・返回台灣",
-    summary: "依電子機票倒推，至少在起飛前三小時抵達 T1。",
+    summary: "依電子機票倒推，至少在起飛前三小時抵達 KIX T1。",
     ticket: "ICOCA／JR 單次付費",
     color: "#4f5968",
+    calendar: {
+      title: "大阪 DAY 7｜JX821 返回台灣",
+      start: "20270217",
+      end: "20270218",
+      timeZone: "Asia/Tokyo",
+      details: "依電子機票倒推：T−4h離開住宿，T−3h抵達KIX T1。關空快速務必坐前方1–4號車。",
+      location: "Kansai International Airport Terminal 1",
+    },
     stops: [
       {
         time: "T−4h30",
@@ -576,7 +730,7 @@ const tripDays: TripDay[] = [
         icon: "🧳",
         category: "stay",
         description: "完成垃圾、廚具與自助退房確認，直接帶行李前往 JR 新今宮站。",
-        route: "飯店 → JR 新今宮",
+        route: "住宿 → JR 新今宮",
       },
       {
         time: "T−4h",
@@ -586,14 +740,15 @@ const tripDays: TripDay[] = [
         description: "搭直達關西機場的關空快速，出發前一個月確認 2027 精確班次。",
         route: "JR 新今宮 → 關西空港｜約 50–60 分",
         ticket: "ICOCA／一般車票",
-        note: "列車在日根野分離：務必搭行進方向前方 1–4 號車。JR 延誤時，改由南海新今宮搭空港急行。",
+        note: "列車在日根野分離：務必坐行進方向前方 1–4 號車。JR 異常則步行到南海新今宮搭空港急行。",
+        official: "https://www.westjr.co.jp/travel-information/sc/train-usage-guide/howto/guide/",
       },
       {
         time: "T−3 小時",
         title: "抵達 KIX T1",
         icon: "🛫",
         category: "transit",
-        description: "依電子機票倒推，至少在起飛前三小時抵達 T1，確認報到區與行李重量。",
+        description: "星宇櫃檯現行於起飛前三小時開放，確認報到區與行李重量。",
         mapQuery: "Kansai International Airport Terminal 1",
       },
       {
@@ -611,30 +766,88 @@ const tripDays: TripDay[] = [
 
 const foodSpots = [
   {
+    icon: "🍣",
+    kind: "壽司",
+    name: "大興寿司 南店",
+    score: "3.48",
+    rank: "新世界在地人氣店",
+    date: "2/11 17:45",
+    budget: "¥3,000–4,000",
+    payment: "現金",
+    booking: "不可預約・候位超過 30 分換店",
+    backup: "謹賀新世界／六鮮通天閣本店",
+    mapQuery: "大興寿司 南店 大阪",
+    url: "https://daikosushi.jp/access/daikosushi-minami/",
+  },
+  {
     icon: "🍜",
     kind: "拉麵",
-    name: "麦と麺助",
-    score: "3.85",
-    rank: "大阪拉麵榜首級",
-    date: "2/12 11:00",
+    name: "らぁ麺 鴨と葱 梅田店",
+    score: "3.58",
+    rank: "指定梅田拉麵",
+    date: "2/12 10:00",
     budget: "¥1,000–2,000",
-    payment: "現金",
-    booking: "不可預約・09:45 排隊",
-    mapQuery: "麦と麺助 大阪 中津",
-    url: "https://tabelog.com/osaka/A2701/A270101/27104891/",
+    payment: "卡／交通 IC／QR",
+    booking: "不可預約・09:50 到場",
+    backup: "銀座篝／なにわ麺次郎 然",
+    mapQuery: "らぁ麺 鴨と葱 梅田店",
+    url: "https://www.kamotonegi.com/shoprisuto/oosaka/",
+  },
+  {
+    icon: "🥐",
+    kind: "甜點",
+    name: "grenier 梅田店",
+    score: "3.54",
+    rank: "本日唯一甜點",
+    date: "2/12 15:45",
+    budget: "約 ¥1,000 內",
+    payment: "卡／交通 IC",
+    booking: "外帶・不另排第二間甜點",
+    backup: "售完則選當日品項或跳過",
+    mapQuery: "grenier Umeda Osaka",
+    url: "https://grenier.shopselect.net/",
   },
   {
     icon: "🥩",
     kind: "燒肉",
-    name: "又三郎",
-    score: "3.82",
-    rank: "燒肉 WEST 百名店",
-    date: "2/13 17:30",
-    budget: "¥10,000–15,000",
-    payment: "信用卡",
-    booking: "必訂・選熟成肉＋燒肉套餐",
-    mapQuery: "又三郎 焼肉 長居 大阪",
-    url: "https://www.tablecheck.com/ja/matasaburo/reserve/message",
+    name: "焼肉力丸 梅田東通り店",
+    score: "3.21",
+    rank: "依指定安排・吃到飽",
+    date: "2/12 17:30",
+    budget: "¥3,700–5,800",
+    payment: "卡／交通 IC／QR",
+    booking: "需提前預約",
+    backup: "力丸お初天神／力丸堂山",
+    mapQuery: "焼肉力丸 梅田東通り店",
+    url: "https://booking.ebica.jp/webrsv/vacant/e021003801/30813",
+  },
+  {
+    icon: "🐟",
+    kind: "市場早餐",
+    name: "木津 魚市食堂",
+    score: "3.55",
+    rank: "木津市場高評海鮮丼",
+    date: "2/13 07:45",
+    budget: "現場菜單",
+    payment: "現金",
+    booking: "不可預約・早到",
+    backup: "川上商店／まるよし／かなえ寿司",
+    mapQuery: "木津 魚市食堂 大阪",
+    url: "https://tabelog.com/osaka/A2701/A270206/27103960/",
+  },
+  {
+    icon: "🍜",
+    kind: "拉麵",
+    name: "麺屋 丈六 なんば店",
+    score: "3.73",
+    rank: "拉麵 OSAKA 百名店 2025",
+    date: "2/13 11:30",
+    budget: "¥1,000–2,000",
+    payment: "現金",
+    booking: "不可預約・11:10 排隊",
+    backup: "なにわ麺次郎／NEXT□／だしと小麦",
+    mapQuery: "麺屋 丈六 なんば店",
+    url: "https://tabelog.com/osaka/A2701/A270202/27084754/",
   },
   {
     icon: "🍱",
@@ -644,73 +857,84 @@ const foodSpots = [
     rank: "Tabelog Award 2026 Bronze",
     date: "2/14 11:30",
     budget: "¥3,000–5,000",
-    payment: "信用卡／交通 IC",
-    booking: "完全預約・名額開放即搶",
+    payment: "卡／交通 IC",
+    booking: "完全預約・1/10 21:00 搶",
+    backup: "とんかつ中村／New Babe難波",
     mapQuery: "とんかつ ふじ井 千林",
-    url: "https://tabelog.com/osaka/A2701/A270304/27131908/",
+    url: "https://www.tablecheck.com/ja/shops/tonkatsu-fujii/reserve",
   },
   {
-    icon: "🍨",
-    kind: "甜點",
-    name: "Circo D’oro",
-    score: "3.92",
-    rank: "大阪甜點榜首級",
-    date: "2/12 15:10",
-    budget: "約 ¥1,000",
-    payment: "現金",
-    booking: "不訂位・座位很少",
-    mapQuery: "Gelateria Circo D'oro Osaka",
-    url: "https://tabelog.com/osaka/A2701/A270204/27009531/",
-  },
-  {
-    icon: "🍰",
-    kind: "蛋糕",
-    name: "ACIDRACINES",
-    score: "3.85",
-    rank: "甜點百名店",
-    date: "2/12 16:20",
-    budget: "¥1,000–2,000",
-    payment: "信用卡",
-    booking: "外帶・可電話留貨",
-    mapQuery: "ACIDRACINES Osaka",
-    url: "https://www.acidracines.com/",
-  },
-  {
-    icon: "🍵",
-    kind: "抹茶",
-    name: "丸久小山園 元庵",
-    score: "3.63",
-    rank: "Cafe WEST 百名店 2025",
-    date: "2/15 14:00",
+    icon: "🍜",
+    kind: "京都午餐",
+    name: "麺屋 猪一",
+    score: "3.71",
+    rank: "拉麵 WEST 百名店 2025",
+    date: "2/15 10:30 取號",
     budget: "¥1,000–2,000",
     payment: "現場確認",
-    booking: "茶房不可預約・茶筅先保留",
-    mapQuery: "丸久小山園 西洞院店 元庵",
-    url: "https://www.marukyu-koyamaen.co.jp/motoan.html",
+    booking: "不可預約・當日整理券",
+    backup: "虵の目屋／猪一離れ／すがり",
+    mapQuery: "麺屋 猪一 京都",
+    url: "https://menyainoichi.net/news/663335b9c7a87201ab8228cf",
   },
 ];
 
 const alternatives = [
   {
-    icon: "🥩",
-    name: "京洛焼肉 ぽめ",
-    label: "夢幻榜首",
-    description: "約 4.13、可能要排近一年，套餐約 ¥15,000–20,000 且只收現金。可候補，但不拿它綁行程。",
-    url: "https://tabelog.com/osaka/A2701/A270201/27119987/",
+    icon: "🍣",
+    name: "謹賀／六鮮",
+    label: "D1 壽司備案",
+    description: "大興壽司等超過 30 分鐘，先改可預約的謹賀，再看六鮮。",
+    url: "https://tabelog.com/osaka/A2701/A270206/27136277/",
+  },
+  {
+    icon: "🍜",
+    name: "銀座篝／麺次郎 然",
+    label: "D2 拉麵備案",
+    description: "鴨と葱候位過長，11:00 起改走大阪站內兩間百名店。",
+    url: "https://www.lucua.jp/shopguide/id804.html",
   },
   {
     icon: "🥩",
-    name: "万両 南森町店",
-    label: "燒肉平價替代",
-    description: "連年百名店，預算約 ¥5,000–8,000；如果又三郎預算過高，改訂這間。",
-    url: "https://tabelog.com/osaka/A2701/A270103/27002291/",
+    name: "力丸 お初天神／堂山",
+    label: "D2 燒肉備案",
+    description: "東通り店滿位，依序查お初天神本館與堂山店。",
+    url: "https://tabelog.com/osaka/A2701/A270101/27123578/",
+  },
+  {
+    icon: "🐟",
+    name: "川上／まるよし／かなえ",
+    label: "D3 早餐備案",
+    description: "魚市食堂人龍過長就換店；かなえ寿司可預約最穩。",
+    url: "https://kizu-ichiba.com/restaurant/",
+  },
+  {
+    icon: "🍜",
+    name: "麺次郎／NEXT□／だし小麦",
+    label: "D3 拉麵備案",
+    description: "丈六等超過 40 分鐘就切換，不讓整天卡在隊伍裡。",
+    url: "https://tabelog.com/osaka/A2701/A270202/27112089/",
+  },
+  {
+    icon: "🥞",
+    name: "味乃家／千日前はつせ",
+    label: "D3 晚餐備案",
+    description: "味乃家可查 FastPass；真正想保座位就先訂はつせ。",
+    url: "https://hatsuse.owst.jp/",
   },
   {
     icon: "🍱",
-    name: "とんかつ中村",
-    label: "豬排備案",
-    description: "同在千林、約 3.9 分且較容易預約；想吃明確的豬排丼可選它。",
+    name: "とんかつ中村／New Babe",
+    label: "D4 豬排備案",
+    description: "ふじ井沒搶到，優先訂同區中村；想吃 New Babe 才改難波。",
     url: "https://tabelog.com/osaka/A2701/A270304/27092639/",
+  },
+  {
+    icon: "🍜",
+    name: "虵の目屋／すがり",
+    label: "D5 京都午餐備案",
+    description: "豬一整理券發完，河原町就近改虵の目屋，或往烏丸吃すがり。",
+    url: "https://tabelog.com/kyoto/A2601/A260201/26035164/",
   },
 ];
 
@@ -725,11 +949,11 @@ const transportCards = [
   },
   {
     icon: "🚇",
-    title: "Enjoy Eco Card",
-    date: "2/12、2/13 使用",
-    price: "平日 ¥820／週末 ¥620",
-    detail: "兩天皆用 Metro 串線；不含 JR、南海與私鐵。",
-    url: "https://subway.osakametro.co.jp/en/guide/page/enjoy-eco.php",
+    title: "大阪市區單次刷卡",
+    date: "2/12、2/13、2/16",
+    price: "ICOCA 最簡單",
+    detail: "D2 來回梅田現行約 ¥480；D3 多用短程計程車，D6 僅天王寺近距離，日票都不易回本。",
+    url: "https://subway.osakametro.co.jp/guide/fare/fare/price.php",
   },
   {
     icon: "🎫",
@@ -749,21 +973,153 @@ const transportCards = [
   },
 ];
 
-const todoItems = [
-  { id: "hotel", when: "現在", title: "確認飯店寄放行李與房間方向", detail: "高樓層、背向軌道、13:00 左右能否寄放。" },
-  { id: "kitchen", when: "現在", title: "確認房內可煎肉與鍋具", detail: "詢問油煙規則、抽風設備、平底鍋與冷藏空間。" },
-  { id: "yakiniku", when: "2026/12", title: "預約又三郎或万両", detail: "又三郎選熟成肉＋燒肉套餐。" },
-  { id: "tonkatsu", when: "1/10 21:00", title: "搶 ふじ井 2/14 11:30", detail: "依現行規則為日本時間 22:00 開放；先複查店家二月月曆。" },
-  { id: "chasen", when: "2027/1 中", title: "電話保留日本製茶筅", detail: "指定久保駒吉・数穂・上・日本製。" },
-  { id: "kizu", when: "2027/1 中", title: "複查木津市場日曆", detail: "確認 2/13 朝市、千惣・喜久安營業與肉品保冷。" },
-  { id: "passes", when: "2027/1 下", title: "購買大阪周遊卡", detail: "Mini Pass 先不買；依 2027 新票價重算京都與機場單次票。" },
-  { id: "kaiyukan", when: "出發前 4–6 週", title: "決定是否買海遊館時段票", detail: "不喜歡水族館就保留為休息與最後採買日。" },
-  { id: "hours", when: "出發前 2 週", title: "複查臨休與 2027 時刻", detail: "餐廳 IG、茶店、JR、南海與京都景點。" },
-  { id: "flight", when: "出發前 72 小時", title: "確認 JX820／JX821", detail: "班機時間、機型、行李與 KIX 報到櫃檯。" },
+const todoItems: TodoItem[] = [
+  {
+    id: "hotel",
+    when: "現在",
+    title: "確認飯店寄放行李與房間方向",
+    detail: "高樓層、背向軌道、抵達時能否寄放；不要假設無人櫃檯一定可寄放。",
+  },
+  {
+    id: "tonkatsu",
+    when: "1/10 21:00 台灣",
+    title: "搶 ふじ井 2/14 11:30",
+    detail: "依現行規則為日本時間 22:00 開放次月座位；先複查二月月曆。",
+    calendar: {
+      title: "搶訂｜とんかつ ふじ井 2/14 11:30",
+      start: "20270110T210000",
+      end: "20270110T213000",
+      timeZone: "Asia/Taipei",
+      details: "日本時間22:00開搶。目標2/14 11:30，最晚12:15；若失敗改訂とんかつ中村。https://www.tablecheck.com/ja/shops/tonkatsu-fujii/reserve",
+      location: "線上訂位",
+    },
+  },
+  {
+    id: "rikimaru",
+    when: "1/13 09:00 台灣",
+    title: "預約燒肉力丸 2/12 17:30",
+    detail: "首選梅田東通り店；滿位依序查お初天神本館、堂山店。",
+    calendar: {
+      title: "預約｜燒肉力丸 梅田東通り店",
+      start: "20270113T090000",
+      end: "20270113T093000",
+      timeZone: "Asia/Taipei",
+      details: "預約2027/2/12 17:30日本時間。首選梅田東通り店；滿位依序查お初天神本館、堂山店。官方未公告固定開賣時刻，T−30先檢查。https://booking.ebica.jp/webrsv/vacant/e021003801/30813",
+      location: "焼肉力丸 梅田東通り店",
+    },
+  },
+  {
+    id: "d3dinner",
+    when: "1/14 08:00 台灣",
+    title: "決定 D3 道頓堀晚餐保底",
+    detail: "福太郎不能訂；味乃家 FastPass 或千日前はつせ座位預約二選一。",
+    calendar: {
+      title: "決定並預約｜D3 道頓堀晚餐保底",
+      start: "20270114T080000",
+      end: "20270114T083000",
+      timeZone: "Asia/Taipei",
+      details: "2/13約18:45。福太郎不可預約；味乃家FastPass不是座位保證，真正想保位請訂千日前はつせ，兩者二選一。https://hatsuse.owst.jp/",
+      location: "法善寺・道頓堀",
+    },
+  },
+  {
+    id: "chasen",
+    when: "1/18 10:00 台灣",
+    title: "電話保留日本製茶筅",
+    detail: "丸久小山園指定久保駒吉・数穂・上・日本製；這是商品保留，茶房不可預約。",
+    calendar: {
+      title: "電話保留｜日本製・奈良高山茶筅",
+      start: "20270118T100000",
+      end: "20270118T102000",
+      timeZone: "Asia/Taipei",
+      details: "致電丸久小山園西洞院店，確認2/15取貨；核對日本製、奈良高山製、工藝師與型號。茶房不可預約。",
+      location: "丸久小山園 西洞院店",
+    },
+  },
+  {
+    id: "harukas",
+    when: "1/20 20:00 台灣",
+    title: "購買 Harukas 300 傍晚票",
+    detail: "目標 2/16 16:30；確認 2027 票價、營業與當日日落。",
+    calendar: {
+      title: "購票｜Harukas 300 2/16 16:30",
+      start: "20270120T200000",
+      end: "20270120T203000",
+      timeZone: "Asia/Taipei",
+      details: "購買2027/2/16 16:30左右入場票；複查票價、日落與臨時維護。https://www.abenoharukas-300.jp/observatory/information.html",
+      location: "線上購票",
+    },
+  },
+  {
+    id: "hours",
+    when: "1/28 20:00 台灣",
+    title: "複查所有 2027/2 營業日",
+    detail: "特別確認 2/11 大興壽司、木津早餐、here、八十八、豬一規則與丸久庫存。",
+    calendar: {
+      title: "複查｜大阪京都餐廳與景點營業",
+      start: "20270128T200000",
+      end: "20270128T210000",
+      timeZone: "Asia/Taipei",
+      details: "逐一複查2/11國定假日大興壽司、木津市場早餐店、京都here與八十八不定休、豬一整理券、丸久茶筅庫存及Harukas營業。",
+      location: "線上確認",
+    },
+  },
+  {
+    id: "passes",
+    when: "2027/1 下旬",
+    title: "購買大阪周遊卡並重算交通",
+    detail: "只預定 2/14 使用；其他天以 ICOCA 單次刷，短程計程車另計。",
+  },
+  {
+    id: "inoichi",
+    when: "2/15 10:15 日本",
+    title: "到麺屋 猪一取午餐整理券",
+    detail: "10:30 發券、全員一起到；here 或八十八延誤時，優先保住整理券。",
+    calendar: {
+      title: "當日取號｜麺屋 猪一 午餐整理券",
+      start: "20270215T101500",
+      end: "20270215T104500",
+      timeZone: "Asia/Tokyo",
+      details: "10:30發整理券，不能提前預約。全員一起到並依券面時間準時返回；券面時間不代表立即入座。https://menyainoichi.net/news/663335b9c7a87201ab8228cf",
+      location: "麺屋 猪一 京都",
+    },
+  },
+  {
+    id: "finalcheck",
+    when: "2/8 20:00 台灣",
+    title: "最終確認訂位、備案與離線地址",
+    detail: "取消重複訂位，儲存力丸／豬排確認信、餐廳日文店名與地圖。",
+    calendar: {
+      title: "最終確認｜大阪京都訂位與備案",
+      start: "20270208T200000",
+      end: "20270208T210000",
+      timeZone: "Asia/Taipei",
+      details: "確認力丸、ふじ井或備案、D3晚餐；取消重複訂位並儲存確認信與離線地址。",
+      location: "行前檢查",
+    },
+  },
+  {
+    id: "flight",
+    when: "出發前 72 小時",
+    title: "確認 JX820／JX821",
+    detail: "班機時間、機型、行李與 KIX 報到櫃檯；回程依 T−3h 抵達機場。",
+  },
 ];
 
 function mapsUrl(query: string) {
   return `https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(query)}`;
+}
+
+function googleCalendarUrl(event: CalendarEvent) {
+  const query = new URLSearchParams({
+    action: "TEMPLATE",
+    text: event.title,
+    dates: `${event.start}/${event.end}`,
+    ctz: event.timeZone,
+    details: event.details,
+    location: event.location ?? "",
+  });
+  return `https://calendar.google.com/calendar/render?${query.toString()}`;
 }
 
 function ExternalButton({ href, children, subtle = false }: { href: string; children: React.ReactNode; subtle?: boolean }) {
@@ -780,20 +1136,22 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [checkedTodos, setCheckedTodos] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState(false);
-  const [copiedWagyu, setCopiedWagyu] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
-    try {
-      const saved = window.localStorage.getItem("osaka-trip-todos");
-      if (saved) setCheckedTodos(JSON.parse(saved));
-      const savedDay = window.localStorage.getItem("osaka-trip-active-day");
-      if (savedDay && tripDays.some((day) => day.id === savedDay)) setActiveDayId(savedDay);
-    } catch {
-      // Device-local convenience only; the site still works without storage.
-    } finally {
-      setStorageReady(true);
-    }
+    const timer = window.setTimeout(() => {
+      try {
+        const saved = window.localStorage.getItem("osaka-trip-todos");
+        if (saved) setCheckedTodos(JSON.parse(saved));
+        const savedDay = window.localStorage.getItem("osaka-trip-active-day");
+        if (savedDay && tripDays.some((day) => day.id === savedDay)) setActiveDayId(savedDay);
+      } catch {
+        // Device-local convenience only; the site still works without storage.
+      } finally {
+        setStorageReady(true);
+      }
+    }, 0);
+    return () => window.clearTimeout(timer);
   }, []);
 
   useEffect(() => {
@@ -822,7 +1180,7 @@ export default function Home() {
     if (!keyword) return [];
     const dayResults = tripDays.flatMap((day) =>
       day.stops
-        .filter((stop) => `${stop.title} ${stop.description} ${stop.route ?? ""}`.toLocaleLowerCase("zh-Hant").includes(keyword))
+        .filter((stop) => `${stop.title} ${stop.description} ${stop.route ?? ""} ${(stop.backups ?? []).map((item) => item.name).join(" ")}`.toLocaleLowerCase("zh-Hant").includes(keyword))
         .map((stop) => ({ key: `${day.id}-${stop.time}-${stop.title}`, icon: stop.icon, title: stop.title, subtitle: `${day.date}（${day.weekday}）・${day.city}`, dayId: day.id, target: "day-planner" }))
     );
     const foodResults = foodSpots
@@ -831,7 +1189,10 @@ export default function Home() {
     const passResults = transportCards
       .filter((pass) => `${pass.title} ${pass.detail}`.toLocaleLowerCase("zh-Hant").includes(keyword))
       .map((pass) => ({ key: `pass-${pass.title}`, icon: pass.icon, title: pass.title, subtitle: `${pass.date}・${pass.price}`, target: "transport" }));
-    return [...dayResults, ...foodResults, ...passResults].slice(0, 10);
+    const todoResults = todoItems
+      .filter((item) => `${item.title} ${item.detail}`.toLocaleLowerCase("zh-Hant").includes(keyword))
+      .map((item) => ({ key: `todo-${item.id}`, icon: "✓", title: item.title, subtitle: item.when, target: "todo" }));
+    return [...dayResults, ...foodResults, ...passResults, ...todoResults].slice(0, 12);
   }, [search]);
 
   function selectSearchResult(result: { dayId?: string; target: string }) {
@@ -851,17 +1212,6 @@ export default function Home() {
       window.setTimeout(() => setCopied(false), 2200);
     } catch {
       setCopied(false);
-    }
-  }
-
-  async function copyWagyuPhrase() {
-    const text = "明日ホテルで食べます。脂が重すぎない赤身寄りの黒毛和牛を、焼肉用にお願いします。保冷剤を付けて、消費期限も教えてください。";
-    try {
-      await navigator.clipboard.writeText(text);
-      setCopiedWagyu(true);
-      window.setTimeout(() => setCopiedWagyu(false), 2200);
-    } catch {
-      setCopiedWagyu(false);
     }
   }
 
@@ -905,7 +1255,7 @@ export default function Home() {
         <div className="hero-copy">
           <div className="eyebrow"><span>7 DAYS</span> 2027.02.11 — 02.17</div>
           <h1>大阪的熱鬧，<br /><em>京都的靜。</em></h1>
-          <p className="hero-lead">一份可直接照走的手機旅程：每天只看當日路線，餐廳、車站、茶筅店一鍵開地圖。</p>
+          <p className="hero-lead">一份可直接照走的手機旅程：每天只看當日路線，餐廳備案、車站與茶筅店一鍵開啟，也能加入 Google 行事曆。</p>
           <div className="hero-actions">
             <a className="primary-cta" href="#day-planner"><span aria-hidden="true">🗓️</span> 開始看行程</a>
             <a className="secondary-cta" href="#todo"><span aria-hidden="true">✓</span> 查看預約待辦</a>
@@ -914,7 +1264,7 @@ export default function Home() {
             <span><i aria-hidden="true">✈️</i> 星宇直飛</span>
             <span><i aria-hidden="true">🏨</i> 新今宮 6 晚</span>
             <span><i aria-hidden="true">🚆</i> 大阪＋京都一日精華</span>
-            <span><i aria-hidden="true">◷</i> 資料查核 2026/08/13</span>
+            <span><i aria-hidden="true">◷</i> 資料查核 2026/08/14</span>
           </div>
         </div>
 
@@ -939,8 +1289,8 @@ export default function Home() {
 
       <section className="quick-stats" aria-label="旅程摘要">
         <div><span className="stat-icon" aria-hidden="true">🗓️</span><strong>7 天 6 夜</strong><small>4 大阪日 · 1 京都日</small></div>
-        <div><span className="stat-icon" aria-hidden="true">🥩</span><strong>黑毛和牛</strong><small>木津市場買 · 隔晚料理</small></div>
-        <div><span className="stat-icon" aria-hidden="true">🎫</span><strong>約 ¥9–10K</strong><small>每人鐵路與 Pass 概算</small></div>
+        <div><span className="stat-icon" aria-hidden="true">🐟</span><strong>木津早餐</strong><small>4 間候選 · 現場切換</small></div>
+        <div><span className="stat-icon" aria-hidden="true">🎫</span><strong>約 ¥8K</strong><small>每人鐵路與 Pass 概算</small></div>
         <div><span className="stat-icon" aria-hidden="true">🍵</span><strong>日本製茶筅</strong><small>2/15 京都完成購買</small></div>
       </section>
 
@@ -975,7 +1325,12 @@ export default function Home() {
               <h3>{activeDay.title}</h3>
               <p>{activeDay.summary}</p>
             </div>
-            <div className="ticket-pill"><span aria-hidden="true">🎫</span><span><small>當日票券</small><strong>{activeDay.ticket}</strong></span></div>
+            <div className="day-board-tools">
+              <div className="ticket-pill"><span aria-hidden="true">🎫</span><span><small>當日票券</small><strong>{activeDay.ticket}</strong></span></div>
+              <a className="calendar-button" href={googleCalendarUrl(activeDay.calendar)} target="_blank" rel="noreferrer">
+                <span aria-hidden="true">＋</span> 加入 Google 行事曆
+              </a>
+            </div>
           </div>
 
           <div className="category-filters" aria-label="篩選當日行程">
@@ -1007,6 +1362,20 @@ export default function Home() {
                     {stop.ticket && <span><i aria-hidden="true">票</i>{stop.ticket}</span>}
                   </div>
                   {stop.note && <div className="inline-note"><span aria-hidden="true">!</span>{stop.note}</div>}
+                  {stop.backups && stop.backups.length > 0 && (
+                    <div className="stop-backups">
+                      <strong><span aria-hidden="true">↺</span> 現場備案</strong>
+                      <div>
+                        {stop.backups.map((backup) => backup.url ? (
+                          <a href={backup.url} target="_blank" rel="noreferrer" key={backup.name}>
+                            <b>{backup.name}</b><small>{backup.detail}</small><span aria-hidden="true">↗</span>
+                          </a>
+                        ) : (
+                          <span key={backup.name}><b>{backup.name}</b><small>{backup.detail}</small></span>
+                        ))}
+                      </div>
+                    </div>
+                  )}
                   {(stop.mapQuery || stop.official) && <div className="stop-actions">
                     {stop.mapQuery && <ExternalButton href={mapsUrl(stop.mapQuery)}>📍 開啟地圖</ExternalButton>}
                     {stop.official && <ExternalButton href={stop.official} subtle>官方／店家資訊</ExternalButton>}
@@ -1020,8 +1389,8 @@ export default function Home() {
 
       <section className="section food-section" id="food">
         <div className="section-heading light">
-          <div><span className="section-kicker">LOCAL PICKS</span><h2>日本在地高評美食</h2></div>
-          <p>以 2026/8 日本 Tabelog 現行評分安排；分數會浮動，營業日於 2027/1 再確認。</p>
+          <div><span className="section-kicker">FOOD PLAN</span><h2>指定餐廳與在地高評美食</h2></div>
+          <p>評分為 2026/8/14 Tabelog 快照；指定店與高評店分開標示，2027/1 再確認營業。</p>
         </div>
         <div className="food-grid">
           {foodSpots.map((spot) => (
@@ -1034,6 +1403,7 @@ export default function Home() {
                 <div><dt>預算</dt><dd>{spot.budget}</dd></div>
                 <div><dt>付款</dt><dd>{spot.payment}</dd></div>
                 <div><dt>預約</dt><dd>{spot.booking}</dd></div>
+                <div><dt>備案</dt><dd>{spot.backup}</dd></div>
               </dl>
               <div className="food-actions"><ExternalButton href={mapsUrl(spot.mapQuery)}>📍 地圖</ExternalButton><ExternalButton href={spot.url} subtle>店家資訊</ExternalButton></div>
             </article>
@@ -1049,39 +1419,35 @@ export default function Home() {
         </div>
       </section>
 
-      <section className="section wagyu-section" id="wagyu">
+      <section className="section wagyu-section market-section" id="kizu">
         <div className="section-heading">
-          <div><span className="section-kicker">COOK AT HOME</span><h2>黑毛和牛，去木津市場買</h2></div>
-          <p>主選可現切的專門店；買完先送回冰箱，隔天晚餐料理，動線與保存都比較穩。</p>
+          <div><span className="section-kicker">MARKET BREAKFAST</span><h2>木津市場早餐，四間現場切換</h2></div>
+          <p>07:45 先看魚市食堂人龍，太長就立即切換，不把早晨耗在排隊。</p>
         </div>
         <div className="wagyu-layout">
           <article className="wagyu-primary">
-            <div className="wagyu-label"><span aria-hidden="true">🥩</span><small>第一選擇 · 2/13 09:40</small></div>
-            <h3>千惣・喜久安</h3>
-            <p>位在木津市場西門旁，店家主打高品質黑毛和牛並可依用途現切。這次指定赤身比例高一些的燒肉片，較適合房內平底鍋。</p>
+            <div className="wagyu-label"><span aria-hidden="true">🐟</span><small>第一選擇 · 2/13 07:45</small></div>
+            <h3>木津 魚市食堂</h3>
+            <p>市場內高評海鮮丼主選，12 席且不可預約。週六可能很快形成長隊，因此只把它當第一選擇，不把它當唯一選擇。</p>
             <ul>
-              <li><span>時間</span><strong>現行 03:00–12:00</strong></li>
-              <li><span>品項</span><strong>黒毛和牛・焼肉用</strong></li>
-              <li><span>回程</span><strong>計程車直送冰箱</strong></li>
+              <li><span>到場</span><strong>07:45 前</strong></li>
+              <li><span>付款</span><strong>只收現金</strong></li>
+              <li><span>原則</span><strong>人龍太長立刻換店</strong></li>
             </ul>
-            <div className="wagyu-actions"><ExternalButton href={mapsUrl("千惣 喜久安 木津市場 大阪")}>📍 店舖地圖</ExternalButton><ExternalButton href="https://ojg.co.jp/" subtle>店家網站</ExternalButton></div>
+            <div className="wagyu-actions"><ExternalButton href={mapsUrl("木津 魚市食堂 大阪")}>📍 店舖地圖</ExternalButton><ExternalButton href="https://kizu-ichiba.com/restaurant/" subtle>市場餐飲清單</ExternalButton></div>
           </article>
           <article className="wagyu-checklist">
-            <span className="section-kicker">BUYING CHECK</span>
-            <h3>現場確認四件事</h3>
+            <span className="section-kicker">BACKUP ORDER</span>
+            <h3>早餐候選順序</h3>
             <ol>
-              <li><b>01</b><span>標籤要寫「黒毛和牛」，不是只有「国産牛」。</span></li>
-              <li><b>02</b><span>請店家切成燒肉用，選赤身偏多、油脂別太重。</span></li>
-              <li><b>03</b><span>消費期限至少到 2/14，並附保冷劑。</span></li>
-              <li><b>04</b><span>回房立刻冷藏；料理時生熟夾具、砧板分開。</span></li>
+              <li><b>01</b><span><strong>魚市食堂：</strong>海鮮丼首選，07:45 前看人龍。</span></li>
+              <li><b>02</b><span><strong>川上商店：</strong>炭火鰻魚，可先電話詢問訂位。</span></li>
+              <li><b>03</b><span><strong>まるよし：</strong>壽司、海鮮丼與鰻魚都有。</span></li>
+              <li><b>04</b><span><strong>かなえ寿司：</strong>能先預約，是最穩保險。</span></li>
             </ol>
-            <div className="japanese-phrase wagyu-phrase">
-              <div><span>買肉日文</span><button type="button" onClick={copyWagyuPhrase}>{copiedWagyu ? "已複製 ✓" : "複製文字"}</button></div>
-              <p lang="ja">明日ホテルで食べます。脂が重すぎない赤身寄りの黒毛和牛を、焼肉用にお願いします。保冷剤を付けて、消費期限も教えてください。</p>
-            </div>
           </article>
         </div>
-        <div className="wagyu-backup"><span aria-hidden="true">↺</span><p><strong>市場內備案：和島精肉店</strong>販售「國產和牛」，現行 04:00–12:00。若主店休息可改買，但仍要現場確認包裝是否明寫「黒毛和牛」。</p><ExternalButton href="https://kizu-ichiba.com/shop/%E5%92%8C%E5%B3%B6%E7%B2%BE%E8%82%89%E5%BA%97/" subtle>查看市場店舖</ExternalButton></div>
+        <div className="wagyu-backup"><span aria-hidden="true">💴</span><p><strong>市場早餐請帶現金：</strong>2027 市場休市曆尚未發布；於 2027/1 再確認 2/13 週六各店營業與是否接受預約。</p><ExternalButton href="https://kizu-ichiba.com/restaurant/" subtle>查看官方清單</ExternalButton></div>
       </section>
 
       <section className="section transport-section" id="transport">
@@ -1102,15 +1468,15 @@ export default function Home() {
           <aside className="cost-card">
             <span className="cost-label">PER PERSON</span>
             <h3>交通＋Pass 概算</h3>
-            <div className="cost-total"><small>約</small><strong>¥9,000</strong><span>— 10,000</span></div>
+            <div className="cost-total"><small>約</small><strong>¥7,500</strong><span>— 8,500</span></div>
             <div className="cost-bars" aria-label="費用組成示意">
-              <span style={{ width: "36%" }} title="大阪周遊卡" />
-              <span style={{ width: "15%" }} title="Enjoy Eco Card" />
+              <span style={{ width: "44%" }} title="大阪周遊卡" />
+              <span style={{ width: "14%" }} title="大阪市區單次" />
               <span style={{ width: "31%" }} title="京都與機場" />
-              <span style={{ width: "18%" }} title="其他交通" />
+              <span style={{ width: "11%" }} title="其他交通" />
             </div>
-            <ul><li><i className="c1" />大阪周遊卡 ¥3,500</li><li><i className="c2" />Enjoy Eco Card 共 ¥1,440</li><li><i className="c3" />京都＋KIX 單次約 ¥2,900</li><li><i className="c4" />南海、大阪其他交通約 ¥1,700+</li></ul>
-            <p className="cash-note"><span aria-hidden="true">💴</span>短程計程車另計、以每車分攤；另備現金供木津市場、拉麵與 Gelato 使用。</p>
+            <ul><li><i className="c1" />大阪周遊卡現行 ¥3,500</li><li><i className="c2" />大阪市區 ICOCA 約 ¥1,100</li><li><i className="c3" />京都＋KIX 單次約 ¥2,600</li><li><i className="c4" />南海與其他交通約 ¥900+</li></ul>
+            <p className="cash-note"><span aria-hidden="true">💴</span>短程計程車不含在內、以每車分攤；另備現金供木津市場、壽司與部分拉麵店使用。</p>
           </aside>
         </div>
       </section>
@@ -1142,17 +1508,25 @@ export default function Home() {
           <div><span className="section-kicker">BOOKING CHECKLIST</span><h2>出發前待辦</h2></div>
           <div className="todo-progress"><span><b>{completedCount}</b> / {todoItems.length} 完成</span><div><i style={{ width: `${(completedCount / todoItems.length) * 100}%` }} /></div></div>
         </div>
+        <p className="calendar-explainer"><span aria-hidden="true">📅</span>「加入 Google 行事曆」會開啟預填事件，由你選擇自己的 Google 帳號儲存；網站不會取得或讀取行事曆權限。</p>
         <div className="todo-grid">
           {todoItems.map((item) => (
-            <label className={`todo-card${checkedTodos[item.id] ? " checked" : ""}`} key={item.id}>
-              <input type="checkbox" checked={Boolean(checkedTodos[item.id])} onChange={(event) => setCheckedTodos((current) => ({ ...current, [item.id]: event.target.checked }))} />
-              <span className="custom-check" aria-hidden="true">✓</span>
-              <span className="todo-time">{item.when}</span>
-              <span className="todo-copy"><strong>{item.title}</strong><small>{item.detail}</small></span>
-            </label>
+            <article className={`todo-card${checkedTodos[item.id] ? " checked" : ""}`} key={item.id}>
+              <label className="todo-check-row">
+                <input type="checkbox" checked={Boolean(checkedTodos[item.id])} onChange={(event) => setCheckedTodos((current) => ({ ...current, [item.id]: event.target.checked }))} />
+                <span className="custom-check" aria-hidden="true">✓</span>
+                <span className="todo-time">{item.when}</span>
+                <span className="todo-copy"><strong>{item.title}</strong><small>{item.detail}</small></span>
+              </label>
+              {item.calendar && (
+                <a className="todo-calendar" href={googleCalendarUrl(item.calendar)} target="_blank" rel="noreferrer">
+                  <span aria-hidden="true">＋</span> 加入 Google 行事曆
+                </a>
+              )}
+            </article>
           ))}
         </div>
-        <p className="storage-note"><span aria-hidden="true">☁️</span>勾選進度只儲存在目前裝置，不會上傳個人資料。</p>
+        <p className="storage-note"><span aria-hidden="true">☁️</span>勾選進度只儲存在目前裝置；行事曆事件則由 Google 在你按下儲存後管理。</p>
       </section>
 
       <section className="hotel-section" id="hotel">
@@ -1167,7 +1541,7 @@ export default function Home() {
 
       <footer>
         <div className="footer-brand"><span className="brand-mark" aria-hidden="true">旅</span><div><strong>OSAKA 2027</strong><small>大阪・京都 7 天 6 夜</small></div></div>
-        <p>營業時間、評分與票價依 2026/8 可查資料整理；2027 年 1 月請再次核對臨休與班次。</p>
+        <p>餐廳評分、營業與票價查核至 2026/8/14；2027 年 1 月請再次核對臨休、訂位與班次。</p>
         <a href="#top">回到頂端 ↑</a>
       </footer>
 
