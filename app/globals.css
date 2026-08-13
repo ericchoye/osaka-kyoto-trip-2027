@@ -1223,6 +1223,200 @@ img {
   -webkit-line-clamp: 3;
 }
 
+.wagyu-section {
+  max-width: 1120px;
+  padding-top: 105px;
+  padding-bottom: 30px;
+}
+
+.wagyu-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 0.95fr);
+  gap: 16px;
+}
+
+.wagyu-primary,
+.wagyu-checklist {
+  padding: clamp(24px, 4vw, 38px);
+  border-radius: 22px;
+}
+
+.wagyu-primary {
+  position: relative;
+  overflow: hidden;
+  background:
+    radial-gradient(circle at 95% 0%, rgba(237, 177, 108, 0.2), transparent 18rem),
+    var(--indigo-deep);
+  box-shadow: 0 24px 54px rgba(29, 39, 55, 0.18);
+  color: #fff;
+}
+
+.wagyu-primary::after {
+  position: absolute;
+  right: -42px;
+  bottom: -62px;
+  width: 190px;
+  height: 190px;
+  border: 1px solid rgba(255, 255, 255, 0.09);
+  border-radius: 50%;
+  box-shadow: 0 0 0 28px rgba(255, 255, 255, 0.025), 0 0 0 56px rgba(255, 255, 255, 0.018);
+  content: "";
+}
+
+.wagyu-label {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.wagyu-label > span {
+  display: grid;
+  width: 42px;
+  height: 42px;
+  place-items: center;
+  border-radius: 13px;
+  background: rgba(255, 255, 255, 0.11);
+  font-size: 22px;
+}
+
+.wagyu-label small {
+  color: #efb36f;
+  font-size: 9px;
+  font-weight: 900;
+  letter-spacing: 0.1em;
+}
+
+.wagyu-primary h3,
+.wagyu-checklist h3 {
+  margin: 20px 0 10px;
+  font-family: "Songti TC", "Noto Serif TC", serif;
+  font-size: clamp(25px, 3vw, 34px);
+}
+
+.wagyu-primary > p {
+  position: relative;
+  z-index: 1;
+  max-width: 520px;
+  margin: 0;
+  color: rgba(255, 255, 255, 0.68);
+  font-size: 12px;
+  line-height: 1.9;
+}
+
+.wagyu-primary ul {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  gap: 8px;
+  margin: 24px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wagyu-primary li {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+  padding: 10px 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+}
+
+.wagyu-primary li span {
+  color: rgba(255, 255, 255, 0.38);
+  font-size: 9px;
+}
+
+.wagyu-primary li strong {
+  font-size: 10px;
+  text-align: right;
+}
+
+.wagyu-actions,
+.wagyu-primary .action-button {
+  position: relative;
+  z-index: 1;
+}
+
+.wagyu-primary .action-button {
+  background: #fff;
+  color: var(--indigo-deep);
+}
+
+.wagyu-primary .action-button.subtle {
+  border-color: rgba(255, 255, 255, 0.2);
+  background: transparent;
+  color: rgba(255, 255, 255, 0.78);
+}
+
+.wagyu-checklist {
+  border: 1px solid #d8d1c5;
+  background: var(--paper);
+  box-shadow: var(--shadow-small);
+}
+
+.wagyu-checklist .section-kicker {
+  color: var(--red-dark);
+}
+
+.wagyu-checklist ol {
+  display: grid;
+  gap: 10px;
+  margin: 18px 0 0;
+  padding: 0;
+  list-style: none;
+}
+
+.wagyu-checklist ol li {
+  display: grid;
+  grid-template-columns: 34px 1fr;
+  gap: 11px;
+  align-items: center;
+  color: #4e5868;
+  font-size: 10px;
+  line-height: 1.6;
+}
+
+.wagyu-checklist ol b {
+  display: grid;
+  width: 32px;
+  height: 32px;
+  place-items: center;
+  border-radius: 50%;
+  background: #efe5dc;
+  color: var(--red-dark);
+  font-family: Georgia, serif;
+  font-size: 10px;
+}
+
+.wagyu-phrase {
+  margin-top: 22px;
+}
+
+.wagyu-backup {
+  display: flex;
+  gap: 12px;
+  align-items: center;
+  margin-top: 14px;
+  padding: 15px 18px;
+  border: 1px solid #d7d2c8;
+  border-radius: 15px;
+  background: rgba(255, 255, 255, 0.5);
+}
+
+.wagyu-backup > span {
+  font-size: 23px;
+}
+
+.wagyu-backup p {
+  flex: 1;
+  margin: 0;
+  color: var(--muted);
+  font-size: 9px;
+}
+
 .transport-layout {
   display: grid;
   grid-template-columns: minmax(0, 1.4fr) minmax(310px, 0.6fr);
@@ -2160,9 +2354,22 @@ footer > a {
 
   .transport-layout,
   .pass-grid,
+  .wagyu-layout,
   .chasen-section,
   .hotel-section {
     grid-template-columns: 1fr;
+  }
+
+  .wagyu-section {
+    padding-top: 70px;
+  }
+
+  .wagyu-backup {
+    flex-wrap: wrap;
+  }
+
+  .wagyu-backup .action-button {
+    width: 100%;
   }
 
   .pass-card {

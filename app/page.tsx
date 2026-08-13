@@ -186,22 +186,23 @@ const tripDays: TripDay[] = [
     date: "2/13",
     weekday: "六",
     city: "大阪",
-    title: "難波打卡・熟成燒肉",
-    summary: "經典南區步行線，傍晚御堂筋線直達長居。",
-    ticket: "Enjoy Eco Card ¥620",
+    title: "木津朝市・黑毛和牛・熟成燒肉",
+    summary: "把黑門改成木津市場；肉買完立刻搭計程車送回冰箱，不提著逛街。",
+    ticket: "Enjoy Eco Card ¥620＋短程計程車",
     color: "#b24845",
     stops: [
       {
-        time: "08:30",
-        title: "前往難波八阪",
-        icon: "🚇",
+        time: "08:10",
+        title: "計程車到難波八阪",
+        icon: "🚕",
         category: "transit",
-        description: "動物園前搭御堂筋線至大國町，步行前往難波八阪神社。",
-        route: "動物園前 M22 → 大國町 M21 → 徒步",
-        ticket: "週末 Enjoy Eco Card",
+        description: "從住宿直接叫車，省掉轉車與不必要的早晨步行。",
+        route: "住宿 → 難波八阪神社｜約 5–10 分",
+        fare: "概估 ¥700–1,000／車｜依路況跳表",
+        note: "若想省錢，才改搭 Metro 到大國町再步行約 8 分。",
       },
       {
-        time: "09:00",
+        time: "08:25",
         title: "難波八阪神社",
         icon: "🦁",
         category: "sight",
@@ -209,20 +210,52 @@ const tripDays: TripDay[] = [
         mapQuery: "Namba Yasaka Jinja",
       },
       {
-        time: "10:00",
-        title: "黑門市場",
+        time: "08:55",
+        title: "前往木津市場",
+        icon: "🚕",
+        category: "transit",
+        description: "不再走原規劃的 20 分鐘；直接搭短程計程車。想走路時約 10 分鐘。",
+        route: "難波八阪神社 → 木津市場｜車程約 3–5 分",
+        fare: "概估 ¥600–800／車｜依路況跳表",
+      },
+      {
+        time: "09:00",
+        title: "木津市場・木津の朝市",
         icon: "🐟",
         category: "shopping",
-        description: "以散步與少量試吃為主，避免在燒肉晚餐前吃太飽。",
-        route: "難波八阪神社 → 徒步約 20 分",
-        mapQuery: "Kuromon Ichiba Market",
+        description: "市場官方建議 08:30–10:30 採買；2/13 是第二個週六，依現行規則很可能有朝市活動。",
+        note: "2027 市場日曆尚未公布，出發前再確認；多數攤位以現金最穩。",
+        mapQuery: "Osaka Kizu Wholesale Market",
+        official: "https://kizu-ichiba.com/introduction/",
+      },
+      {
+        time: "09:40",
+        title: "千惣・喜久安買黑毛和牛",
+        icon: "🥩",
+        category: "shopping",
+        description: "西門外的黑毛和牛專門店，可依料理方式現切；選油脂不要太重的赤身燒肉片。",
+        route: "木津市場西門旁",
+        note: "確認標示「黒毛和牛」、消費期限至少到 2/14，並索取保冷劑。",
+        mapQuery: "千惣 喜久安 木津市場 大阪",
+        official: "https://ojg.co.jp/",
+      },
+      {
+        time: "10:10",
+        title: "計程車送肉回住宿",
+        icon: "❄️",
+        category: "transit",
+        description: "肉買完直接回住宿冷藏，不帶著和牛繼續逛。放妥後休息再出門。",
+        route: "木津市場 → 住宿｜約 5–8 分",
+        fare: "概估 ¥700–1,000／車｜依路況跳表",
       },
       {
         time: "11:30",
         title: "法善寺・道頓堀",
         icon: "📸",
         category: "sight",
-        description: "法善寺橫丁、水掛不動尊、Glico 看板與戎橋。",
+        description: "從動物園前搭御堂筋線到難波，再走法善寺橫丁、Glico 看板與戎橋。",
+        route: "動物園前 M22 → 難波 M20",
+        ticket: "週末 Enjoy Eco Card",
         mapQuery: "Dotonbori Glico Sign",
         official: "https://osaka-info.jp/en/spot/dotonbori/",
       },
@@ -242,7 +275,7 @@ const tripDays: TripDay[] = [
         category: "transit",
         description: "從難波搭御堂筋線直達長居，提早 15 分鐘抵達。",
         route: "難波 M20 → 長居 M26",
-        ticket: "ICOCA",
+        ticket: "週末 Enjoy Eco Card",
       },
       {
         time: "17:30",
@@ -270,8 +303,8 @@ const tripDays: TripDay[] = [
     date: "2/14",
     weekday: "日",
     city: "大阪",
-    title: "大阪城・豬排・梅田夜景",
-    summary: "周遊卡價值最高的一天，關鍵是 15:00 前進空中庭園。",
+    title: "大阪城・豬排・黑毛和牛料理",
+    summary: "周遊卡日把移動改成地鐵直達；傍晚提早回房料理前一天買的和牛。",
     ticket: "Osaka Amazing Pass ¥3,500",
     color: "#315a7d",
     stops: [
@@ -297,11 +330,11 @@ const tripDays: TripDay[] = [
       {
         time: "10:20",
         title: "前往千林",
-        icon: "🚆",
+        icon: "🚇",
         category: "transit",
-        description: "由大手門方向步行到天滿橋，轉京阪前往千林。",
-        route: "天滿橋 → 京阪千林",
-        ticket: "周遊卡涵蓋至千林",
+        description: "不走到天滿橋；回谷町四丁目站，搭谷町線直達千林大宮。",
+        route: "谷町四丁目 T23 → 千林大宮 T14",
+        ticket: "大阪周遊卡",
       },
       {
         time: "11:30",
@@ -317,10 +350,10 @@ const tripDays: TripDay[] = [
       {
         time: "12:40",
         title: "千林前往梅田",
-        icon: "🚆",
+        icon: "🚇",
         category: "transit",
-        description: "京阪至淀屋橋，再轉御堂筋線至梅田。",
-        route: "千林 → 淀屋橋 → 梅田",
+        description: "千林大宮搭谷町線直達東梅田，不必轉車。",
+        route: "千林大宮 T14 → 東梅田 T20",
         ticket: "大阪周遊卡",
       },
       {
@@ -343,14 +376,21 @@ const tripDays: TripDay[] = [
         mapQuery: "Grand Green Osaka",
       },
       {
+        time: "17:00",
+        title: "回住宿準備晚餐",
+        icon: "🚇",
+        category: "transit",
+        description: "從梅田搭御堂筋線直達動物園前，預留料理與整理廚房時間。",
+        route: "梅田 M16 → 動物園前 M22",
+        ticket: "大阪周遊卡",
+      },
+      {
         time: "18:00",
-        title: "HEP FIVE 摩天輪",
-        icon: "🎡",
-        category: "sight",
-        description: "以摩天輪補上夜景，結束後在梅田晚餐或回房料理。",
-        fare: "原價 ¥1,000｜周遊卡含",
-        mapQuery: "HEP FIVE Ferris Wheel",
-        official: "https://osaka-amazing-pass.com/en/service_free.html",
+        title: "自己料理黑毛和牛",
+        icon: "🍳",
+        category: "food",
+        description: "料理前一天在木津市場買的黑毛和牛；先煎少量測試油煙與熟度，再分批下鍋。",
+        note: "入住前先確認房內可煎肉、抽油煙設備與鍋具；生熟用具分開。",
       },
     ],
   },
@@ -359,68 +399,78 @@ const tripDays: TripDay[] = [
     date: "2/15",
     weekday: "一",
     city: "京都",
-    title: "嵐山・金閣寺・日本製茶筅",
-    summary: "本日購買茶筅最重要；隔兩天店休，不可延後。",
-    ticket: "JR Kansai Mini Pass D1",
+    title: "伏見稻荷・清水寺・日本製茶筅",
+    summary: "京都縮為一天，只留首訪核心；兩段短程計程車換體力，不塞嵐山、金閣寺與宇治。",
+    ticket: "ICOCA＋短程計程車",
     color: "#57775c",
     stops: [
       {
         time: "06:40",
-        title: "JR 前往嵐山",
+        title: "JR 前往伏見稻荷",
         icon: "🚆",
         category: "transit",
-        description: "新今宮經大阪、京都，轉嵯峨野線到嵯峨嵐山。",
-        route: "新今宮 → 大阪 → 京都 → 嵯峨嵐山",
-        ticket: "JR Mini Pass",
+        description: "新今宮經大阪、京都，轉 JR 奈良線普通車至稻荷。",
+        route: "新今宮 → 大阪 → 京都 → 稻荷",
+        ticket: "ICOCA／一般車票",
       },
       {
-        time: "08:30",
-        title: "天龍寺庭園",
-        icon: "🪷",
+        time: "07:50",
+        title: "伏見稻荷大社",
+        icon: "⛩️",
         category: "sight",
-        description: "開門入場，先看曹源池庭園再由北門接竹林。",
-        fare: "庭園 ¥500｜諸堂另 ¥300",
-        mapQuery: "Tenryu-ji Kyoto",
-        official: "https://testmt.tenryuji.com/visit/",
+        description: "本殿、千本鳥居與奧社來回；不攻山頂，約 80–90 分鐘。",
+        mapQuery: "Fushimi Inari Taisha",
+        official: "https://inari.jp/",
       },
       {
-        time: "09:20",
-        title: "竹林・渡月橋",
-        icon: "🎋",
-        category: "sight",
-        description: "竹林小徑、野宮神社，再步行至渡月橋。",
-        route: "全程步行",
-        mapQuery: "Arashiyama Bamboo Forest",
-      },
-      {
-        time: "10:45",
-        title: "嵐電移動",
-        icon: "🚋",
+        time: "09:25",
+        title: "計程車至清水寺東山區",
+        icon: "🚕",
         category: "transit",
-        description: "嵐山站搭嵐電，在帷子ノ辻轉往北野白梅町，再搭短程巴士。",
-        route: "嵐山 → 帷子ノ辻 → 北野白梅町 → 金閣寺",
-        ticket: "ICOCA／現金",
+        description: "從伏見稻荷直接搭車，避開京阪轉車與清水五條約 25 分鐘上坡。",
+        route: "伏見稻荷 → 清水坂／茶碗坂可下車處｜約 15–20 分",
+        fare: "概估 ¥2,000–3,000／車｜依路況跳表",
+        note: "車輛不能開到本堂，最後仍有一段坡道；請司機停在合法且最靠近的下車點。",
+        official: "https://www.kiyomizudera.or.jp/access/index.html",
+      },
+      {
+        time: "10:00",
+        title: "清水寺",
+        icon: "🏯",
+        category: "sight",
+        description: "由清水舞台往地主神社周邊、音羽瀑布參觀；保留坡道慢走時間。",
+        fare: "¥500",
+        mapQuery: "Kiyomizu-dera Kyoto",
+        official: "https://www.kiyomizudera.or.jp/",
       },
       {
         time: "11:30",
-        title: "金閣寺",
-        icon: "✨",
+        title: "三年坂・二年坂・祇園",
+        icon: "🏮",
         category: "sight",
-        description: "沿單向參觀路線看鏡湖池與舍利殿。",
-        fare: "¥500",
-        mapQuery: "Kinkaku-ji Kyoto",
-        official: "https://www.shokoku-ji.jp/kinkakuji/access/",
+        description: "沿三年坂、二年坂、八坂塔往祇園方向下坡；這段保留給值得走的街景。",
+        route: "清水寺 → 八坂塔 → 高台寺外圍 → 祇園",
+        mapQuery: "Hokan-ji Temple Yasaka Pagoda",
       },
       {
-        time: "12:30",
-        title: "金閣寺周邊午餐",
+        time: "12:20",
+        title: "祇園午餐・坐下休息",
         icon: "🍚",
         category: "food",
-        description: "保留 50–60 分鐘正式午餐與休息，再前往烏丸御池。",
-        route: "金閣寺／北野白梅町周邊",
+        description: "安排 60 分鐘正式午餐，不邊走邊吃；避開排隊名店，保住下午取茶筅時間。",
+        route: "祇園／河原町周邊",
       },
       {
-        time: "14:30",
+        time: "13:25",
+        title: "短程計程車到西洞院",
+        icon: "🚕",
+        category: "transit",
+        description: "把祇園到烏丸御池的非景觀路段改搭車，午後留體力。",
+        route: "祇園 → 丸久小山園西洞院店｜約 10–15 分",
+        fare: "概估 ¥1,200–1,800／車｜依路況跳表",
+      },
+      {
+        time: "14:00",
         title: "丸久小山園・元庵",
         icon: "🍵",
         category: "shopping",
@@ -431,31 +481,24 @@ const tripDays: TripDay[] = [
         official: "https://www.marukyu-koyamaen.co.jp/motoan.html",
       },
       {
-        time: "15:45",
+        time: "15:25",
         title: "錦市場",
         icon: "🛍️",
         category: "shopping",
-        description: "多數店約 17:00 前開始收攤，採買茶點與乾貨。",
+        description: "短程搭地下鐵或計程車前往；多數店約 17:00 前收攤，採買茶點與乾貨。",
+        route: "烏丸御池 → 四條／錦市場",
+        ticket: "ICOCA",
         mapQuery: "Nishiki Market Kyoto",
       },
       {
         time: "17:00",
-        title: "祇園德屋（彈性）",
-        icon: "🍡",
-        category: "food",
-        description: "有餘力且尚未售完才去；本蕨餅或抹茶本葛餅，不能訂位。",
-        fare: "約 ¥1,000–2,000",
-        mapQuery: "Gion Tokuya Kyoto",
-        official: "https://tabelog.com/kyoto/A2601/A260301/26002075/",
-      },
-      {
-        time: "19:00",
         title: "返回大阪",
         icon: "🌙",
         category: "transit",
-        description: "祇園四條搭京阪至東福寺，轉 JR 經京都、大阪回新今宮。",
-        route: "祇園四條 → 東福寺 → 京都 → 大阪 → 新今宮",
-        ticket: "京阪用 ICOCA；JR 用 Mini Pass",
+        description: "從烏丸搭阪急到大阪梅田，再轉 JR 回新今宮；不繞京都站。",
+        route: "烏丸 → 大阪梅田 → JR 大阪 → 新今宮",
+        ticket: "ICOCA",
+        note: "本日刪除嵐山、金閣寺與宇治，避免一日塞成兩日的疲勞量。",
       },
     ],
   },
@@ -463,94 +506,57 @@ const tripDays: TripDay[] = [
     id: "d6",
     date: "2/16",
     weekday: "二",
-    city: "京都＋宇治",
-    title: "伏見稻荷・宇治・清水寺",
-    summary: "早看千本鳥居，中午喝宇治抹茶，午後走京都東山。",
-    ticket: "JR Kansai Mini Pass D2",
-    color: "#3c765e",
+    city: "大阪",
+    title: "海遊館・天保山・收行李",
+    summary: "京都後安排低強度大阪港日；不喜歡水族館可整天改成休息與最後採買。",
+    ticket: "ICOCA 約 ¥740 往返",
+    color: "#397087",
     stops: [
       {
-        time: "06:40",
-        title: "JR 前往伏見稻荷",
-        icon: "🚆",
-        category: "transit",
-        description: "由新今宮經大阪、京都，轉 JR 奈良線普通車到稻荷。",
-        route: "新今宮 → 大阪 → 京都 → 稻荷",
-        ticket: "JR Mini Pass",
-      },
-      {
-        time: "07:50",
-        title: "伏見稻荷大社",
-        icon: "⛩️",
-        category: "sight",
-        description: "本殿、千本鳥居與奧社來回；不攻山頂，約 90 分鐘。",
-        mapQuery: "Fushimi Inari Taisha",
-        official: "https://inari.jp/",
-      },
-      {
-        time: "09:30",
-        title: "JR 前往宇治",
-        icon: "🚆",
-        category: "transit",
-        description: "從 JR 稻荷搭奈良線普通車前往宇治。",
-        route: "稻荷 → 宇治",
-        ticket: "JR Mini Pass",
-      },
-      {
         time: "10:00",
-        title: "平等院・鳳翔館",
-        icon: "🦚",
-        category: "sight",
-        description: "先登記鳳凰堂內部時段，再參觀庭園與博物館。",
-        fare: "¥700｜鳳凰堂內部另 ¥300",
-        mapQuery: "Byodoin Uji",
-        official: "https://www.byodoin.or.jp/guide/",
-      },
-      {
-        time: "11:45",
-        title: "三星園上林三入本店",
-        icon: "🍵",
-        category: "food",
-        description: "選正統宇治抹茶與和菓子組合；若想吃華麗聖代再改中村藤吉。",
-        fare: "依當日茶品",
-        mapQuery: "三星園上林三入本店 宇治",
-        official: "https://www.ujicha-kanbayashi.co.jp/tea-room",
-      },
-      {
-        time: "13:30",
-        title: "移動至清水五條",
+        title: "前往大阪港",
         icon: "🚆",
         category: "transit",
-        description: "JR 宇治到東福寺，轉京阪至清水五條，再步行上坡約 25 分鐘。",
-        route: "宇治 → 東福寺 → 清水五條",
-        ticket: "JR Mini Pass＋京阪 ICOCA",
+        description: "睡飽再出門；JR 至弁天町，站內轉中央線到大阪港。",
+        route: "新今宮 → 弁天町 → 大阪港｜出站步行約 5 分",
+        fare: "往返概估約 ¥740／人",
+        ticket: "ICOCA",
+      },
+      {
+        time: "11:00",
+        title: "大阪海遊館",
+        icon: "🐋",
+        category: "sight",
+        description: "指定時段入場，官方常見參觀時間約 2 小時；室內行程不受冬季天氣影響。",
+        fare: "現行成人動態票價約 ¥2,700–3,500",
+        note: "2027 時段未公布，出發前 4–6 週再買電子票。",
+        mapQuery: "Osaka Aquarium Kaiyukan",
+        official: "https://www.kaiyukan.com/info/hours/",
+      },
+      {
+        time: "13:15",
+        title: "天保山午餐・休息",
+        icon: "🍚",
+        category: "food",
+        description: "在 Marketplace 坐下吃午餐；不安排市場連吃，留時間休息。",
+        mapQuery: "Tempozan Marketplace Osaka",
       },
       {
         time: "14:30",
-        title: "清水寺",
-        icon: "🏯",
+        title: "天保山大觀覽車（可刪）",
+        icon: "🎡",
         category: "sight",
-        description: "二月目前開至 18:00，午後入場仍有充足時間。",
-        fare: "¥500",
-        mapQuery: "Kiyomizu-dera Kyoto",
-        official: "https://www.kiyomizudera.or.jp/news/open-hour.php",
+        description: "體力足夠才搭，約 15 分鐘；累了就直接回住宿。",
+        mapQuery: "Tempozan Ferris Wheel",
       },
       {
-        time: "16:15",
-        title: "二年坂・祇園",
-        icon: "🏮",
-        category: "sight",
-        description: "清水坂、三年坂、二年坂、八坂塔、八坂神社至花見小路。",
-        route: "全程步行，下坡較輕鬆",
-        mapQuery: "Hokan-ji Temple Yasaka Pagoda",
-      },
-      {
-        time: "18:30",
-        title: "返回大阪",
-        icon: "🌙",
-        category: "transit",
-        description: "祇園四條搭京阪至東福寺，轉 JR 回新今宮。",
-        ticket: "京阪用 ICOCA；JR 用 Mini Pass",
+        time: "16:00",
+        title: "回住宿休息・打包",
+        icon: "🧳",
+        category: "stay",
+        description: "最後一晚不再塞遠點；整理行李、洗衣，晚餐再到天王寺或超市簡單採買。",
+        route: "大阪港 → 弁天町 → 新今宮",
+        ticket: "ICOCA",
       },
     ],
   },
@@ -561,7 +567,7 @@ const tripDays: TripDay[] = [
     city: "返程",
     title: "關西機場・返回台灣",
     summary: "依電子機票倒推，至少在起飛前三小時抵達 T1。",
-    ticket: "JR Kansai Mini Pass D3",
+    ticket: "ICOCA／JR 單次付費",
     color: "#4f5968",
     stops: [
       {
@@ -579,8 +585,8 @@ const tripDays: TripDay[] = [
         category: "transit",
         description: "搭直達關西機場的關空快速，出發前一個月確認 2027 精確班次。",
         route: "JR 新今宮 → 關西空港｜約 50–60 分",
-        ticket: "JR Mini Pass",
-        note: "列車在日根野分離：務必搭行進方向前方 1–4 號車。JR 延誤或 QR 無法開啟，改搭南海空港急行，另付 ¥970。",
+        ticket: "ICOCA／一般車票",
+        note: "列車在日根野分離：務必搭行進方向前方 1–4 號車。JR 延誤時，改由南海新今宮搭空港急行。",
       },
       {
         time: "T−3 小時",
@@ -670,17 +676,17 @@ const foodSpots = [
     url: "https://www.acidracines.com/",
   },
   {
-    icon: "🍡",
-    kind: "和菓子",
-    name: "祇園德屋",
-    score: "3.76",
-    rank: "和菓子 WEST 百名店",
-    date: "2/15 17:00",
+    icon: "🍵",
+    kind: "抹茶",
+    name: "丸久小山園 元庵",
+    score: "3.63",
+    rank: "Cafe WEST 百名店 2025",
+    date: "2/15 14:00",
     budget: "¥1,000–2,000",
     payment: "現場確認",
-    booking: "不可預約・售完提早結束",
-    mapQuery: "Gion Tokuya Kyoto",
-    url: "https://tabelog.com/kyoto/A2601/A260301/26002075/",
+    booking: "茶房不可預約・茶筅先保留",
+    mapQuery: "丸久小山園 西洞院店 元庵",
+    url: "https://www.marukyu-koyamaen.co.jp/motoan.html",
   },
 ];
 
@@ -730,25 +736,28 @@ const transportCards = [
     title: "Osaka Amazing Pass",
     date: "2/14 使用",
     price: "1 日 ¥3,500",
-    detail: "大阪城、空中庭園、HEP FIVE 加交通原價約 ¥4,820；QR 需網路，購買後 3 個月內用。",
+    detail: "大阪城、空中庭園與市內交通仍可回本；空中庭園須在 15:00 前完成入場。",
     url: "https://osaka-amazing-pass.com/en/info.html",
   },
   {
     icon: "🚆",
-    title: "JR Kansai Mini Pass",
-    date: "2/15–2/17",
-    price: "3 日 ¥3,000",
-    detail: "海外通路購買；手機 QR 需即時網路。不能搭 HARUKA、特急或新幹線。",
-    url: "https://www.westjr.co.jp/global/tc/ticket/pass/kansaimini/",
+    title: "京都／機場單次付費",
+    date: "2/15、2/17",
+    price: "ICOCA／一般車票",
+    detail: "京都只去一天且回程搭阪急，Mini Pass 不再划算；保留改線彈性。關空快速坐前方 1–4 號車。",
+    url: "https://www.westjr.co.jp/global/en/howto/icoca/",
   },
 ];
 
 const todoItems = [
   { id: "hotel", when: "現在", title: "確認飯店寄放行李與房間方向", detail: "高樓層、背向軌道、13:00 左右能否寄放。" },
+  { id: "kitchen", when: "現在", title: "確認房內可煎肉與鍋具", detail: "詢問油煙規則、抽風設備、平底鍋與冷藏空間。" },
   { id: "yakiniku", when: "2026/12", title: "預約又三郎或万両", detail: "又三郎選熟成肉＋燒肉套餐。" },
   { id: "tonkatsu", when: "1/10 21:00", title: "搶 ふじ井 2/14 11:30", detail: "依現行規則為日本時間 22:00 開放；先複查店家二月月曆。" },
   { id: "chasen", when: "2027/1 中", title: "電話保留日本製茶筅", detail: "指定久保駒吉・数穂・上・日本製。" },
-  { id: "passes", when: "2027/1 下", title: "購買周遊卡與 JR Mini Pass", detail: "再次核對售價、效期及手機 QR 使用方式。" },
+  { id: "kizu", when: "2027/1 中", title: "複查木津市場日曆", detail: "確認 2/13 朝市、千惣・喜久安營業與肉品保冷。" },
+  { id: "passes", when: "2027/1 下", title: "購買大阪周遊卡", detail: "Mini Pass 先不買；依 2027 新票價重算京都與機場單次票。" },
+  { id: "kaiyukan", when: "出發前 4–6 週", title: "決定是否買海遊館時段票", detail: "不喜歡水族館就保留為休息與最後採買日。" },
   { id: "hours", when: "出發前 2 週", title: "複查臨休與 2027 時刻", detail: "餐廳 IG、茶店、JR、南海與京都景點。" },
   { id: "flight", when: "出發前 72 小時", title: "確認 JX820／JX821", detail: "班機時間、機型、行李與 KIX 報到櫃檯。" },
 ];
@@ -771,6 +780,7 @@ export default function Home() {
   const [search, setSearch] = useState("");
   const [checkedTodos, setCheckedTodos] = useState<Record<string, boolean>>({});
   const [copied, setCopied] = useState(false);
+  const [copiedWagyu, setCopiedWagyu] = useState(false);
   const [storageReady, setStorageReady] = useState(false);
 
   useEffect(() => {
@@ -844,6 +854,17 @@ export default function Home() {
     }
   }
 
+  async function copyWagyuPhrase() {
+    const text = "明日ホテルで食べます。脂が重すぎない赤身寄りの黒毛和牛を、焼肉用にお願いします。保冷剤を付けて、消費期限も教えてください。";
+    try {
+      await navigator.clipboard.writeText(text);
+      setCopiedWagyu(true);
+      window.setTimeout(() => setCopiedWagyu(false), 2200);
+    } catch {
+      setCopiedWagyu(false);
+    }
+  }
+
   const completedCount = todoItems.filter((item) => checkedTodos[item.id]).length;
 
   return (
@@ -892,7 +913,7 @@ export default function Home() {
           <div className="hero-notes">
             <span><i aria-hidden="true">✈️</i> 星宇直飛</span>
             <span><i aria-hidden="true">🏨</i> 新今宮 6 晚</span>
-            <span><i aria-hidden="true">🚆</i> 大阪＋京都＋宇治</span>
+            <span><i aria-hidden="true">🚆</i> 大阪＋京都一日精華</span>
             <span><i aria-hidden="true">◷</i> 資料查核 2026/08/13</span>
           </div>
         </div>
@@ -917,9 +938,9 @@ export default function Home() {
       </section>
 
       <section className="quick-stats" aria-label="旅程摘要">
-        <div><span className="stat-icon" aria-hidden="true">🗓️</span><strong>7 天 6 夜</strong><small>3 大阪核心日 · 2 京都日</small></div>
-        <div><span className="stat-icon" aria-hidden="true">🍜</span><strong>6 間精選</strong><small>拉麵 · 燒肉 · 豬排 · 甜點</small></div>
-        <div><span className="stat-icon" aria-hidden="true">🎫</span><strong>約 ¥10–11K</strong><small>每人交通與 Pass 概算</small></div>
+        <div><span className="stat-icon" aria-hidden="true">🗓️</span><strong>7 天 6 夜</strong><small>4 大阪日 · 1 京都日</small></div>
+        <div><span className="stat-icon" aria-hidden="true">🥩</span><strong>黑毛和牛</strong><small>木津市場買 · 隔晚料理</small></div>
+        <div><span className="stat-icon" aria-hidden="true">🎫</span><strong>約 ¥9–10K</strong><small>每人鐵路與 Pass 概算</small></div>
         <div><span className="stat-icon" aria-hidden="true">🍵</span><strong>日本製茶筅</strong><small>2/15 京都完成購買</small></div>
       </section>
 
@@ -1028,6 +1049,41 @@ export default function Home() {
         </div>
       </section>
 
+      <section className="section wagyu-section" id="wagyu">
+        <div className="section-heading">
+          <div><span className="section-kicker">COOK AT HOME</span><h2>黑毛和牛，去木津市場買</h2></div>
+          <p>主選可現切的專門店；買完先送回冰箱，隔天晚餐料理，動線與保存都比較穩。</p>
+        </div>
+        <div className="wagyu-layout">
+          <article className="wagyu-primary">
+            <div className="wagyu-label"><span aria-hidden="true">🥩</span><small>第一選擇 · 2/13 09:40</small></div>
+            <h3>千惣・喜久安</h3>
+            <p>位在木津市場西門旁，店家主打高品質黑毛和牛並可依用途現切。這次指定赤身比例高一些的燒肉片，較適合房內平底鍋。</p>
+            <ul>
+              <li><span>時間</span><strong>現行 03:00–12:00</strong></li>
+              <li><span>品項</span><strong>黒毛和牛・焼肉用</strong></li>
+              <li><span>回程</span><strong>計程車直送冰箱</strong></li>
+            </ul>
+            <div className="wagyu-actions"><ExternalButton href={mapsUrl("千惣 喜久安 木津市場 大阪")}>📍 店舖地圖</ExternalButton><ExternalButton href="https://ojg.co.jp/" subtle>店家網站</ExternalButton></div>
+          </article>
+          <article className="wagyu-checklist">
+            <span className="section-kicker">BUYING CHECK</span>
+            <h3>現場確認四件事</h3>
+            <ol>
+              <li><b>01</b><span>標籤要寫「黒毛和牛」，不是只有「国産牛」。</span></li>
+              <li><b>02</b><span>請店家切成燒肉用，選赤身偏多、油脂別太重。</span></li>
+              <li><b>03</b><span>消費期限至少到 2/14，並附保冷劑。</span></li>
+              <li><b>04</b><span>回房立刻冷藏；料理時生熟夾具、砧板分開。</span></li>
+            </ol>
+            <div className="japanese-phrase wagyu-phrase">
+              <div><span>買肉日文</span><button type="button" onClick={copyWagyuPhrase}>{copiedWagyu ? "已複製 ✓" : "複製文字"}</button></div>
+              <p lang="ja">明日ホテルで食べます。脂が重すぎない赤身寄りの黒毛和牛を、焼肉用にお願いします。保冷剤を付けて、消費期限も教えてください。</p>
+            </div>
+          </article>
+        </div>
+        <div className="wagyu-backup"><span aria-hidden="true">↺</span><p><strong>市場內備案：和島精肉店</strong>販售「國產和牛」，現行 04:00–12:00。若主店休息可改買，但仍要現場確認包裝是否明寫「黒毛和牛」。</p><ExternalButton href="https://kizu-ichiba.com/shop/%E5%92%8C%E5%B3%B6%E7%B2%BE%E8%82%89%E5%BA%97/" subtle>查看市場店舖</ExternalButton></div>
+      </section>
+
       <section className="section transport-section" id="transport">
         <div className="section-heading">
           <div><span className="section-kicker">SMART FARES</span><h2>這樣買票最省</h2></div>
@@ -1046,15 +1102,15 @@ export default function Home() {
           <aside className="cost-card">
             <span className="cost-label">PER PERSON</span>
             <h3>交通＋Pass 概算</h3>
-            <div className="cost-total"><small>約</small><strong>¥10,000</strong><span>— 11,000</span></div>
+            <div className="cost-total"><small>約</small><strong>¥9,000</strong><span>— 10,000</span></div>
             <div className="cost-bars" aria-label="費用組成示意">
-              <span style={{ width: "29%" }} title="大阪周遊卡" />
-              <span style={{ width: "25%" }} title="JR Mini Pass" />
-              <span style={{ width: "18%" }} title="京都市內交通" />
-              <span style={{ width: "28%" }} title="其他交通" />
+              <span style={{ width: "36%" }} title="大阪周遊卡" />
+              <span style={{ width: "15%" }} title="Enjoy Eco Card" />
+              <span style={{ width: "31%" }} title="京都與機場" />
+              <span style={{ width: "18%" }} title="其他交通" />
             </div>
-            <ul><li><i className="c1" />大阪周遊卡 ¥3,500</li><li><i className="c2" />JR Mini Pass ¥3,000</li><li><i className="c3" />京都私鐵／巴士約 ¥1,300</li><li><i className="c4" />南海、Metro、ICOCA 約 ¥2,200+</li></ul>
-            <p className="cash-note"><span aria-hidden="true">💴</span>另備每人 ¥10,000–20,000 現金，拉麵、Gelato 與部分店家不能刷卡。</p>
+            <ul><li><i className="c1" />大阪周遊卡 ¥3,500</li><li><i className="c2" />Enjoy Eco Card 共 ¥1,440</li><li><i className="c3" />京都＋KIX 單次約 ¥2,900</li><li><i className="c4" />南海、大阪其他交通約 ¥1,700+</li></ul>
+            <p className="cash-note"><span aria-hidden="true">💴</span>短程計程車另計、以每車分攤；另備現金供木津市場、拉麵與 Gelato 使用。</p>
           </aside>
         </div>
       </section>
