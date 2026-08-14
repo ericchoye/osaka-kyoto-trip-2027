@@ -1,0 +1,4 @@
+interface:
+  display_name: "旅遊行程規劃與網站發布"
+  short_description: "依序完成旅遊訪談、行程預覽、網站設計、日曆提醒與同行分享"
+  default_prompt: "使用 $plan-international-trip 依照訪談、行程預覽、網站設計與 GitHub 分享流程規劃我的旅行。"
