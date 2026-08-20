@@ -1,5 +1,7 @@
 "use client";
 
+/* eslint-disable @next/next/no-img-element -- This dual Vinext/Vite static site serves precompressed local WebP assets without a Next image loader. */
+
 import { useEffect, useMemo, useState } from "react";
 
 type Category = "sight" | "food" | "transit" | "shopping" | "stay";
@@ -43,6 +45,7 @@ type TripDay = {
   summary: string;
   ticket: string;
   color: string;
+  backdrop: string;
   calendar: CalendarEvent;
   stops: Stop[];
 };
@@ -74,6 +77,7 @@ const tripDays: TripDay[] = [
     summary: "國定假日，抵達時段保留彈性；晚餐與唐吉訶德集中在新世界。",
     ticket: "ICOCA＋南海空港急行",
     color: "#d24a38",
+    backdrop: "./trip-images/days/bg-d1-shinsekai.webp",
     calendar: {
       title: "大阪 DAY 1｜抵達・新世界",
       start: "20270211",
@@ -169,6 +173,7 @@ const tripDays: TripDay[] = [
     summary: "白天集中在大阪站周邊，傍晚買食材後搭 JR 回飯店自己料理。",
     ticket: "ICOCA 單次刷｜JR 往返現行約 ¥400",
     color: "#cf7d2d",
+    backdrop: "./trip-images/days/bg-d2-umeda.webp",
     calendar: {
       title: "大阪 DAY 2｜梅田吃喝購物",
       start: "20270212",
@@ -270,6 +275,7 @@ const tripDays: TripDay[] = [
     summary: "早餐、可麗露、拉麵、夜間 Glico 與指定雌牛燒肉串成不折返的一天。",
     ticket: "ICOCA＋短程計程車",
     color: "#b24845",
+    backdrop: "./trip-images/days/bg-d3-dotonbori.webp",
     calendar: {
       title: "大阪 DAY 3｜木津市場・難波・道頓堀",
       start: "20270213",
@@ -389,6 +395,7 @@ const tripDays: TripDay[] = [
     summary: "保留大阪城與豬排名店，下午用大阪周遊卡進空中庭園。",
     ticket: "Osaka Amazing Pass｜現行 ¥3,500",
     color: "#315a7d",
+    backdrop: "./trip-images/days/bg-d4-osaka-castle.webp",
     calendar: {
       title: "大阪 DAY 4｜大阪城・豬排・梅田夜景",
       start: "20270214",
@@ -489,6 +496,7 @@ const tripDays: TripDay[] = [
     summary: "由清水寺一路下坡，再搭計程車銜接豬一與茶筅店。",
     ticket: "ICOCA＋短程計程車",
     color: "#57775c",
+    backdrop: "./trip-images/days/bg-d5-kiyomizu.webp",
     calendar: {
       title: "京都 DAY 5｜清水寺・豬一・抹茶・茶筅",
       start: "20270215",
@@ -624,6 +632,7 @@ const tripDays: TripDay[] = [
     summary: "景點全在天王寺／阿倍野，核心步行多在 2–10 分鐘內。",
     ticket: "ICOCA 單次刷",
     color: "#397087",
+    backdrop: "./trip-images/days/bg-d6-harukas.webp",
     calendar: {
       title: "大阪 DAY 6｜天王寺・阿倍野・Harukas 300",
       start: "20270216",
@@ -725,6 +734,7 @@ const tripDays: TripDay[] = [
     summary: "依電子機票倒推，至少在起飛前三小時抵達 KIX T1。",
     ticket: "ICOCA／JR 單次付費",
     color: "#4f5968",
+    backdrop: "./trip-images/days/bg-d7-kix.webp",
     calendar: {
       title: "大阪 DAY 7｜JX821 返回台灣",
       start: "20270217",
@@ -773,6 +783,62 @@ const tripDays: TripDay[] = [
     ],
   },
 ];
+
+const stopThumbnailByTitle: Record<string, string> = {
+  "JX820 桃園起飛": "./trip-images/stops/thumb-flight.webp",
+  "抵達關西機場": "./trip-images/days/bg-d7-kix.webp",
+  "南海空港急行到新今宮": "./trip-images/stops/thumb-airport-rail.webp",
+  "Apartment Hotel 11": "./trip-images/stops/thumb-hotel-kitchen.webp",
+  "新世界・通天閣": "./trip-images/days/bg-d1-shinsekai.webp",
+  "大興寿司 南店": "./trip-images/stops/thumb-sushi-counter.webp",
+  "MEGA 唐吉訶德 新世界店": "./trip-images/stops/thumb-discount-store.webp",
+  "JR 前往大阪站": "./trip-images/stops/thumb-jr-city.webp",
+  "らぁ麺 鴨と葱 梅田店": "./trip-images/stops/thumb-duck-ramen.webp",
+  "友都八喜相機多媒體 梅田店": "./trip-images/stops/thumb-electronics.webp",
+  "grenier 梅田店": "./trip-images/stops/thumb-grenier-pastry.webp",
+  "補買晚餐食材": "./trip-images/stops/thumb-grocery.webp",
+  "JR 返回新今宮": "./trip-images/stops/thumb-jr-city.webp",
+  "回飯店自己料理": "./trip-images/stops/thumb-hotel-kitchen.webp",
+  "短程計程車到木津市場": "./trip-images/stops/thumb-taxi.webp",
+  "木津 魚市食堂早餐": "./trip-images/stops/thumb-kizu-market.webp",
+  "難波八阪神社": "./trip-images/stops/thumb-namba-yasaka.webp",
+  "CANELE du JAPON 桜川店": "./trip-images/stops/thumb-canele.webp",
+  "麺屋 丈六 なんば店排隊": "./trip-images/stops/thumb-joroku-ramen.webp",
+  "難波・心齋橋自由逛": "./trip-images/days/bg-d3-dotonbori.webp",
+  "Glico Sign Dotonbori 夜景": "./trip-images/days/bg-d3-dotonbori.webp",
+  "雌牛専門店 板前焼肉一牛 難波 道頓堀店 離れ": "./trip-images/stops/thumb-wagyu-yakiniku.webp",
+  "地鐵前往大阪城": "./trip-images/stops/thumb-osaka-metro.webp",
+  "大阪城天守閣": "./trip-images/days/bg-d4-osaka-castle.webp",
+  "谷町線直達千林大宮": "./trip-images/stops/thumb-osaka-metro.webp",
+  "とんかつ ふじ井": "./trip-images/stops/thumb-tonkatsu.webp",
+  "谷町線前往東梅田": "./trip-images/stops/thumb-osaka-metro.webp",
+  "梅田藍天大廈・空中庭園": "./trip-images/days/bg-d2-umeda.webp",
+  "Grand Green・梅田自由活動": "./trip-images/days/bg-d2-umeda.webp",
+  "返回新今宮": "./trip-images/stops/thumb-osaka-metro.webp",
+  "JR 前往京都": "./trip-images/stops/thumb-jr-city.webp",
+  "京都站搭計程車到清水寺": "./trip-images/stops/thumb-taxi.webp",
+  "清水寺": "./trip-images/days/bg-d5-kiyomizu.webp",
+  "here Kyoto Kiyomizu": "./trip-images/stops/thumb-here-coffee.webp",
+  "三年坂・二年坂下坡散策": "./trip-images/days/bg-d5-kiyomizu.webp",
+  "八十八良葉舎 清水": "./trip-images/stops/thumb-matcha.webp",
+  "計程車前往麺屋 猪一": "./trip-images/stops/thumb-taxi.webp",
+  "麺屋 猪一・當日取號": "./trip-images/stops/thumb-inoichi-ramen.webp",
+  "丸久小山園 西洞院店・元庵": "./trip-images/stops/thumb-chasen.webp",
+  "錦市場・四條河原町": "./trip-images/stops/thumb-nishiki-market.webp",
+  "阪急返回大阪": "./trip-images/stops/thumb-hankyu-train.webp",
+  "JR 前往天王寺": "./trip-images/stops/thumb-jr-city.webp",
+  "大阪市立美術館": "./trip-images/stops/thumb-osaka-museum.webp",
+  "慶澤園": "./trip-images/stops/thumb-keitakuen.webp",
+  "Tenshiba 午餐": "./trip-images/stops/thumb-park-dining.webp",
+  "阿倍野 Q’s Mall・近鐵百貨": "./trip-images/stops/thumb-abeno-shopping.webp",
+  "天王寺 MIO・休息": "./trip-images/stops/thumb-abeno-shopping.webp",
+  "Harukas 300 展望台": "./trip-images/days/bg-d6-harukas.webp",
+  "阿倍野晚餐・最後採買": "./trip-images/stops/thumb-park-dining.webp",
+  "退房": "./trip-images/stops/thumb-hotel-kitchen.webp",
+  "JR 關空快速": "./trip-images/stops/thumb-airport-rail.webp",
+  "抵達 KIX T1": "./trip-images/days/bg-d7-kix.webp",
+  "JX821 關西起飛": "./trip-images/stops/thumb-flight.webp",
+};
 
 const foodSpots = [
   {
@@ -1316,6 +1382,17 @@ export default function Home() {
 
         <article className="day-board" style={{ "--day-color": activeDay.color } as React.CSSProperties}>
           <div className="day-board-header">
+            <img
+              key={activeDay.id}
+              className="day-board-backdrop"
+              src={activeDay.backdrop}
+              alt=""
+              aria-hidden="true"
+              width={1600}
+              height={900}
+              decoding="async"
+              fetchPriority="high"
+            />
             <div>
               <span className="day-number">DAY {activeDay.id.slice(1)}</span>
               <h3>{activeDay.title}</h3>
@@ -1348,7 +1425,19 @@ export default function Home() {
                 <div className="timeline-marker"><span aria-hidden="true">{stop.icon}</span></div>
                 <div className="stop-card">
                   <div className="stop-topline">
-                    <div><span className={`category-tag ${stop.category}`}>{categories.find((item) => item.id === stop.category)?.label}</span><h4>{stop.title}</h4></div>
+                    <div className="stop-heading">
+                      <img
+                        className="stop-thumbnail"
+                        src={stopThumbnailByTitle[stop.title] ?? activeDay.backdrop}
+                        alt=""
+                        aria-hidden="true"
+                        width={480}
+                        height={320}
+                        loading="lazy"
+                        decoding="async"
+                      />
+                      <div className="stop-heading-copy"><span className={`category-tag ${stop.category}`}>{categories.find((item) => item.id === stop.category)?.label}</span><h4>{stop.title}</h4></div>
+                    </div>
                     <span className="stop-count">{String(index + 1).padStart(2, "0")}</span>
                   </div>
                   <p>{stop.description}</p>
