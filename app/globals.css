@@ -741,18 +741,54 @@ img {
 }
 
 .day-board-header {
+  position: relative;
+  isolation: isolate;
   display: flex;
+  min-height: 250px;
+  overflow: hidden;
   justify-content: space-between;
   gap: 30px;
   align-items: center;
   padding: 30px 36px;
   border-top: 5px solid var(--day-color);
   border-bottom: 1px solid #e4dfd6;
-  background: linear-gradient(100deg, color-mix(in srgb, var(--day-color) 8%, #fff), #fff 56%);
+  background: var(--indigo-deep);
+  color: #fff;
+}
+
+.day-board-header::before {
+  position: absolute;
+  inset: 0;
+  z-index: -1;
+  content: "";
+  background: linear-gradient(90deg, rgba(12, 23, 40, 0.94) 0%, rgba(12, 23, 40, 0.79) 48%, rgba(12, 23, 40, 0.36) 100%);
+}
+
+.day-board-backdrop {
+  position: absolute;
+  inset: 0;
+  z-index: -2;
+  width: 100%;
+  height: 100%;
+  max-width: none;
+  object-fit: cover;
+  filter: saturate(0.92) contrast(1.04);
+  animation: day-backdrop-in 320ms ease-out both;
+}
+
+@keyframes day-backdrop-in {
+  from {
+    opacity: 0;
+    transform: scale(1.015);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
 }
 
 .day-number {
-  color: var(--day-color);
+  color: color-mix(in srgb, var(--day-color) 45%, #fff);
   font-size: 9px;
   font-weight: 900;
   letter-spacing: 0.18em;
@@ -760,6 +796,7 @@ img {
 
 .day-board-header h3 {
   margin: 3px 0 2px;
+  color: #fff;
   font-family: "Songti TC", "Noto Serif TC", serif;
   font-size: clamp(25px, 3vw, 34px);
   line-height: 1.25;
@@ -767,7 +804,8 @@ img {
 
 .day-board-header p {
   margin: 0;
-  color: var(--muted);
+  max-width: 610px;
+  color: rgba(255, 255, 255, 0.82);
   font-size: 12px;
 }
 
@@ -807,7 +845,9 @@ img {
   padding: 13px 16px;
   border: 1px solid color-mix(in srgb, var(--day-color) 28%, #ddd);
   border-radius: 13px;
-  background: #fff;
+  background: rgba(255, 255, 255, 0.94);
+  color: var(--ink);
+  backdrop-filter: blur(8px);
 }
 
 .ticket-pill > span:first-child {
@@ -922,9 +962,32 @@ img {
 }
 
 .stop-topline {
-  display: flex;
-  justify-content: space-between;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) auto;
   gap: 14px;
+  align-items: start;
+}
+
+.stop-heading {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: 116px minmax(0, 1fr);
+  gap: 13px;
+  align-items: center;
+}
+
+.stop-heading-copy {
+  min-width: 0;
+}
+
+.stop-thumbnail {
+  width: 116px;
+  height: 78px;
+  border: 1px solid rgba(28, 38, 51, 0.08);
+  border-radius: 10px;
+  background: #ece8df;
+  box-shadow: 0 4px 13px rgba(27, 38, 55, 0.12);
+  object-fit: cover;
 }
 
 .category-tag {
@@ -2379,7 +2442,12 @@ footer > a {
 
   .day-board-header {
     display: block;
+    min-height: 330px;
     padding: 23px 20px;
+  }
+
+  .day-board-header::before {
+    background: linear-gradient(180deg, rgba(12, 23, 40, 0.72) 0%, rgba(12, 23, 40, 0.94) 100%);
   }
 
   .day-board-header h3 {
@@ -2434,6 +2502,17 @@ footer > a {
   .stop-card {
     padding: 14px;
     border-radius: 13px;
+  }
+
+  .stop-heading {
+    grid-template-columns: 88px minmax(0, 1fr);
+    gap: 9px;
+  }
+
+  .stop-thumbnail {
+    width: 88px;
+    height: 64px;
+    border-radius: 8px;
   }
 
   .stop-card h4 {
@@ -2657,6 +2736,16 @@ footer > a {
     height: 32px;
   }
 
+  .stop-heading {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .stop-thumbnail {
+    width: 100%;
+    height: auto;
+    aspect-ratio: 3 / 2;
+  }
+
   .product-title {
     grid-template-columns: 38px 1fr;
   }
@@ -2691,6 +2780,8 @@ footer > a {
   .mobile-nav,
   .hero-actions,
   .category-filters,
+  .day-board-backdrop,
+  .stop-thumbnail,
   .stop-actions,
   .food-actions,
   .hotel-actions,
